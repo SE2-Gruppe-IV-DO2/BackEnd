@@ -1,8 +1,5 @@
 package at.aau.serg.websocketdemoserver.messaging.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 // Wird aktuell noch nicht benötigt -> Für sauberen Aufbau sollte aber so ein Format verwendet werden (als Vorlage verwenden!)
 //@Data
 //@AllArgsConstructor

@@ -35,7 +35,7 @@ public class WebSocketHandlerImpUnitTest {
     @Test
     void testHandleMessageResult() throws Exception {
         WebSocketSession session = mock(WebSocketSession.class);
-        WebSocketMessage<String> message = mock(WebSocketMessage.class);
+        WebSocketMessage message = mock(WebSocketMessage.class);
         when(message.getPayload()).thenReturn("Test Message");
 
         handler.handleMessage(session, message);

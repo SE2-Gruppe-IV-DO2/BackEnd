@@ -22,7 +22,7 @@ public class WebSocketHandlerImpl implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        throw new Exception("Could not handle the transport for session:" + session.getId());
+        throw new Exception(exception);
     }
 
     @Override
