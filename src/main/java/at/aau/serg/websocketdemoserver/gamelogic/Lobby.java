@@ -1,8 +1,5 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
-import lombok.Getter;
-
-@Getter
 public record Lobby(String lobbyCode) {
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
