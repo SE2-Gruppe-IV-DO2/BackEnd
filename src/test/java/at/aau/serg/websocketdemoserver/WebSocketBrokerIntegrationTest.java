@@ -1,5 +1,6 @@
 package at.aau.serg.websocketdemoserver;
 
+import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -26,7 +28,10 @@ class WebSocketBrokerIntegrationTest {
     private int port;
 
     private final String WEBSOCKET_URI = "ws://localhost:%d/websocket-example-broker";
-    private final String WEBSOCKET_TOPIC = "/topic/hello-response";
+    private final String WEBSOCKET_TOPIC_HELLO_RESPONSE = "/topic/hello-response";
+
+    private final String WEBSOCKET_TOPIC_CREATE_LOBBY = "/app/create_new_lobby";
+    private final String WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE = "/topic/lobby-created";
 
     /**
      * Queue of messages from the server.
@@ -35,7 +40,7 @@ class WebSocketBrokerIntegrationTest {
 
     @Test
     public void testWebSocketMessageBroker() throws Exception {
-        StompSession session = initStompSession();
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_HELLO_RESPONSE);
 
         // send a message to the server
         String message = "Test message";
@@ -45,10 +50,22 @@ class WebSocketBrokerIntegrationTest {
         assertThat(messages.poll(1, TimeUnit.SECONDS)).isEqualTo(expectedResponse);
     }
 
+    @Test
+    public void testWebSocketCreateNewLobby() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+
+        // send a message to the server
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "");
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(createLobbyResponse).isNotEmpty();
+        assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+    }
+
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
      */
-    public StompSession initStompSession() throws Exception {
+    public StompSession initStompSession(String websocketTopic) throws Exception {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new StringMessageConverter());
 
@@ -61,7 +78,7 @@ class WebSocketBrokerIntegrationTest {
 
         // subscribes to the topic defined in WebSocketBrokerController
         // and adds received messages to WebSocketBrokerIntegrationTest#messages
-        session.subscribe(WEBSOCKET_TOPIC, new StompFrameHandlerClientImpl(messages));
+        session.subscribe(websocketTopic, new StompFrameHandlerClientImpl(messages));
 
         return session;
     }
