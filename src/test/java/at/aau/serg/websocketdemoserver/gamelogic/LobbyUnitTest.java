@@ -11,7 +11,7 @@ public class LobbyUnitTest {
     public void testValidLobbyCode() {
         String validCode = "TEST";
         Lobby lobby = new Lobby(validCode);
-        assertEquals(validCode, lobby.getLobbyCode());
+        assertEquals(validCode, lobby.lobbyCode());
     }
 
     @Test
@@ -32,6 +32,6 @@ public class LobbyUnitTest {
     @Test
     public void testValidLobbyCode_MixedWhitespace() {
         Lobby lobby = new Lobby("  TEST  ");
-        assertEquals("TEST", lobby.getLobbyCode());
+        assertEquals("TEST", lobby.lobbyCode());
     }
 }

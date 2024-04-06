@@ -4,9 +4,8 @@ import java.util.*;
 
 public class LobbyManager {
     private static LobbyManager instance;
-    private Map<String, Lobby> lobbies;
+    private final Map<String, Lobby> lobbies;
     public static final int LOBBY_CODE_LENGTH = 6;
-    private int lobbyCreationRetryCounter = 0;
     public static int MAX_LOBBY_CREATION_RETRIES = 10;
 
     private LobbyManager() {
@@ -22,8 +21,8 @@ public class LobbyManager {
 
     public String createLobby() throws Exception {
         Lobby newLobby = new Lobby(generateUniqueCode());
-        lobbies.put(newLobby.getLobbyCode(), newLobby);
-        return newLobby.getLobbyCode();
+        lobbies.put(newLobby.lobbyCode(), newLobby);
+        return newLobby.lobbyCode();
     }
 
     public List<Lobby> getAllLobbies() {
@@ -40,7 +39,7 @@ public class LobbyManager {
 
     private String generateUniqueCode() throws Exception {
         String code;
-        lobbyCreationRetryCounter = 0;
+        int lobbyCreationRetryCounter = 0;
         do {
             if (lobbyCreationRetryCounter > MAX_LOBBY_CREATION_RETRIES)
                 throw new Exception("Could not create new lobby. Maybe the maximal amount of lobbies is reached.");
