@@ -99,9 +99,7 @@ public class LobbyManagerUnitTest {
         String userID = "user1";
         String playerName = "USER_NAME";
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName);
-        });
+        assertThrows(IllegalArgumentException.class, () -> lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName));
     }
 
     @Test
@@ -114,9 +112,7 @@ public class LobbyManagerUnitTest {
         String lobbyCode = null;
         String userID = "user1";
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName);
-        });
+        assertThrows(IllegalArgumentException.class, () -> lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName));
     }
 
     @Test
