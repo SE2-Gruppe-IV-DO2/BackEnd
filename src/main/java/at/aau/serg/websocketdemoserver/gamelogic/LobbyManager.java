@@ -1,0 +1,57 @@
+package at.aau.serg.websocketdemoserver.gamelogic;
+
+import java.util.*;
+
+public class LobbyManager {
+    private static LobbyManager instance;
+    private final Map<String, Lobby> lobbies;
+    public static final int LOBBY_CODE_LENGTH = 6;
+    public static int MAX_LOBBY_CREATION_RETRIES = 10;
+
+    private LobbyManager() {
+        lobbies = new HashMap<>();
+    }
+
+    public static synchronized LobbyManager getInstance() {
+        if (instance == null) {
+            instance = new LobbyManager();
+        }
+        return instance;
+    }
+
+    public String createLobby() throws Exception {
+        Lobby newLobby = new Lobby(generateUniqueCode());
+        lobbies.put(newLobby.lobbyCode(), newLobby);
+        return newLobby.lobbyCode();
+    }
+
+    public List<Lobby> getAllLobbies() {
+        return new ArrayList<>(lobbies.values());
+    }
+
+    public void deleteAllLobbies() {
+        lobbies.clear();
+    }
+
+    public boolean isLobbyCodeUnique(String code) {
+        return !lobbies.containsKey(code);
+    }
+
+    private String generateUniqueCode() throws Exception {
+        String code;
+        int lobbyCreationRetryCounter = 0;
+        do {
+            if (lobbyCreationRetryCounter > MAX_LOBBY_CREATION_RETRIES)
+                throw new Exception("Could not create new lobby. Maybe the maximal amount of lobbies is reached.");
+            else
+                lobbyCreationRetryCounter++;
+
+            code = generateCode();
+        } while (!isLobbyCodeUnique(code));
+        return code;
+    }
+
+    public String generateCode() {
+        return UUID.randomUUID().toString().replaceAll("-", "").substring(0, LOBBY_CODE_LENGTH).toUpperCase();
+    }
+}
