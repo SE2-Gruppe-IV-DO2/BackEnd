@@ -37,7 +37,7 @@ public class LobbyManager {
     }
 
     public boolean isPlayerInLobby(String lobbyCode, String playerID) {
-        if (!lobbies.containsKey(lobbyCode) || lobbies.get(lobbyCode).getPlayerIDs() == null)
+        if (!lobbies.containsKey(lobbyCode))
             return false;
 
         return lobbies.get(lobbyCode).getPlayerIDs().contains(playerID);

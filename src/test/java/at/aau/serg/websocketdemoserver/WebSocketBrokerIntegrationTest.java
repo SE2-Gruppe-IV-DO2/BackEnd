@@ -1,7 +1,6 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
-import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
