@@ -77,4 +77,74 @@ public class LobbyManagerUnitTest {
 
         assertThrows(Exception.class, mockedLobbyManager::createLobby, "Expected exception when max retries are exceeded");
     }
+
+    @Test
+    public void testAddUserToLobby_Success() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        String playerID = "user1";
+        String playerName = "USER_NAME";
+
+        lobbyManager.addPlayerToLobby(lobbyCode, playerID, playerName);
+        List<Lobby> lobbies = lobbyManager.getAllLobbies();
+        for (Lobby lobby : lobbies) {
+            if (lobby.lobbyCode().equals(lobbyCode)) {
+                assertTrue(lobby.getPlayerIDs().contains(playerID));
+            }
+        }
+    }
+
+    @Test
+    public void testAddUserToNonexistentLobby() {
+        String lobbyCode = "lobby1";
+        String userID = "user1";
+        String playerName = "USER_NAME";
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName);
+        });
+    }
+
+    @Test
+    public void testAddUserToNullLobbyCode() throws Exception {
+        String lobbyCode1 = lobbyManager.createLobby();
+        String playerName = "USER_NAME";
+
+        lobbyManager.addPlayerToLobby(lobbyCode1, "player1", playerName);
+        lobbyManager.addPlayerToLobby(lobbyCode1, "player2", playerName);
+        String lobbyCode = null;
+        String userID = "user1";
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            lobbyManager.addPlayerToLobby(lobbyCode, userID, playerName);
+        });
+    }
+
+    @Test
+    public void testIsPlayerInLobby_ShouldReturnTrue() throws Exception {
+        String lobbyCode1 = lobbyManager.createLobby();
+        String playerName = "USER_NAME";
+        lobbyManager.addPlayerToLobby(lobbyCode1, "player1", playerName);
+
+        assertTrue(lobbyManager.isPlayerInLobby(lobbyCode1, "player1"));
+    }
+
+    @Test
+    public void testIsPlayerInLobby_ShouldReturnFalse() {
+        assertFalse(lobbyManager.isPlayerInLobby("NOT_EXISTING_LOBBY", "player1"));
+    }
+
+    @Test
+    public void testIsPlayerInLobby_LobbyDoesNotExist() {
+        assertFalse(lobbyManager.isPlayerInLobby("lobby3", "player1"));
+    }
+
+    @Test
+    public void testIsPlayerInLobby_WithNullLobbyCode() {
+        assertFalse(lobbyManager.isPlayerInLobby(null, "player1"));
+    }
+
+    @Test
+    public void testIsPlayerInLobby_NullPlayerID() {
+        assertFalse(lobbyManager.isPlayerInLobby("lobby1", null));
+    }
 }

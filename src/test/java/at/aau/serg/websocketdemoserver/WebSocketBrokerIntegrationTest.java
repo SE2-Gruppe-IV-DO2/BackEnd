@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,11 +57,23 @@ class WebSocketBrokerIntegrationTest {
         StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
 
         // send a message to the server
-        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "");
+        //Player player = new Player("TEST_USER", "TEST_USER_NAME");
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "TEST_USER");
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(createLobbyResponse).isNotEmpty();
         assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+    }
+
+    @Test
+    public void testWebSocketCreateNewLobbyWithoutUser() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+
+        // send a message to the server
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "");
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(createLobbyResponse).isNullOrEmpty();
     }
 
     /**
