@@ -25,6 +25,24 @@ public class LobbyManager {
         return newLobby.lobbyCode();
     }
 
+    public void addPlayerToLobby(String lobbyCode, String playerID, String playerName) {
+        Player player = new Player(playerID, playerName);
+        addPlayerToLobby(lobbyCode, player);
+    }
+
+    public void addPlayerToLobby(String lobbyCode, Player player) {
+        if (!lobbies.containsKey(lobbyCode))
+            throw new IllegalArgumentException("Lobby with code '" + lobbyCode + "' does not exist!");
+        lobbies.get(lobbyCode).addPlayer(player);
+    }
+
+    public boolean isPlayerInLobby(String lobbyCode, String playerID) {
+        if (!lobbies.containsKey(lobbyCode))
+            return false;
+
+        return lobbies.get(lobbyCode).getPlayerIDs().contains(playerID);
+    }
+
     public List<Lobby> getAllLobbies() {
         return new ArrayList<>(lobbies.values());
     }

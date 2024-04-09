@@ -18,10 +18,22 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/create_new_lobby")
     @SendTo("/topic/lobby-created")
-    public String createNewLobby() throws Exception {
+    public String createNewLobby(String userID, String userName) throws Exception {
         // Create a new lobby and return its ID
         LobbyManager lobbyManager = LobbyManager.getInstance();
-        return lobbyManager.createLobby();
+        String newlyCreatedLobbyCode = lobbyManager.createLobby();
+        lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, userID, userName);
+        return newlyCreatedLobbyCode;
+    }
+
+    @MessageMapping("/join_lobby")
+    @SendTo("/topic/lobby-joined")
+    public String joinLobby(String lobbyCode, String userID, String userName) {
+        // Join an existing lobby
+        LobbyManager lobbyManager = LobbyManager.getInstance();
+        lobbyManager.addPlayerToLobby(lobbyCode, userID, userName);
+
+        return "";
     }
 
 }

@@ -55,11 +55,23 @@ class WebSocketBrokerIntegrationTest {
         StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
 
         // send a message to the server
-        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "");
+        //Player player = new Player("TEST_USER", "TEST_USER_NAME");
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "TEST_USER");
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(createLobbyResponse).isNotEmpty();
         assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+    }
+
+    @Test
+    public void testWebSocketCreateNewLobbyWithoutUser() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+
+        // send a message to the server
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "");
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(createLobbyResponse).isNullOrEmpty();
     }
 
     /**
