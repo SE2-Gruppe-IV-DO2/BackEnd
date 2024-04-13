@@ -21,8 +21,9 @@ public class LobbyManager {
 
     public String createLobby() throws Exception {
         Lobby newLobby = new Lobby(generateUniqueCode());
-        lobbies.put(newLobby.lobbyCode(), newLobby);
-        return newLobby.lobbyCode();
+        String newlyCreatedLobbyCode = newLobby.getLobbyCode();
+        lobbies.put(newlyCreatedLobbyCode, newLobby);
+        return newlyCreatedLobbyCode;
     }
 
     public void addPlayerToLobby(String lobbyCode, String playerID, String playerName) {
