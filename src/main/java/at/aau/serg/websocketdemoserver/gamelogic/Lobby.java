@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lobby {
-    private List<Player> players = new ArrayList<>();
+    private final List<Player> players = new ArrayList<>();
     @Getter
-    private String lobbyCode;
+    private final String lobbyCode;
     public static final int MAX_PLAYER_COUNT = 5;
     public static final int MIN_PLAYER_FOR_GAME_START_COUNT = 3;
 
