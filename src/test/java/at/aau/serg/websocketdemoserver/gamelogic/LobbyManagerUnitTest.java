@@ -146,9 +146,7 @@ public class LobbyManagerUnitTest {
 
     @Test
     void startGameForLobby_LobbyDoesNotExist_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            lobbyManager.startGameForLobby("nonExistentLobby");
-        });
+        assertThrows(IllegalArgumentException.class, () -> lobbyManager.startGameForLobby("nonExistentLobby"));
     }
 
     @Test
