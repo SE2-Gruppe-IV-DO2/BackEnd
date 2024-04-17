@@ -80,4 +80,15 @@ public class LobbyUnitTest {
         }
         assertTrue(lobby.isReadyToStart());
     }
+
+    @Test
+    public void lobbyGameStartedDefaultValueIsFalse() {
+        assertFalse(lobby.isLobbyGameStarted());
+    }
+
+    @Test
+    public void lobbyGameStartedSetterAndGetter() {
+        lobby.setLobbyGameStarted(true);
+        assertTrue(lobby.isLobbyGameStarted());
+    }
 }

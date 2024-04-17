@@ -143,4 +143,29 @@ public class LobbyManagerUnitTest {
     public void testIsPlayerInLobby_NullPlayerID() {
         assertFalse(lobbyManager.isPlayerInLobby("lobby1", null));
     }
+
+    @Test
+    void startGameForLobby_LobbyDoesNotExist_ThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            lobbyManager.startGameForLobby("nonExistentLobby");
+        });
+    }
+
+    @Test
+    void startGameForLobby_GameAlreadyStarted_ThrowsIllegalStateException() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        lobbyManager.startGameForLobby(lobbyCode);
+
+        assertThrows(IllegalStateException.class, () -> {
+            lobbyManager.startGameForLobby(lobbyCode); // Try starting the game again
+        });
+    }
+
+    @Test
+    void startGameForLobby_GameNotStarted_SuccessfullyStartsGame() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        lobbyManager.startGameForLobby(lobbyCode);
+        assertTrue(lobbyManager.getLobbyByCode(lobbyCode).isLobbyGameStarted());
+    }
 }

@@ -48,6 +48,22 @@ public class LobbyManager {
         return new ArrayList<>(lobbies.values());
     }
 
+    public Lobby getLobbyByCode(String lobbyCode) {
+        return lobbies.get(lobbyCode);
+    }
+
+    public void startGameForLobby(String lobbyCode) {
+        if (!lobbies.containsKey(lobbyCode))
+            throw new IllegalArgumentException("Lobby with code '" + lobbyCode + "' does not exist!");
+
+        Lobby selectedLobby = lobbies.get(lobbyCode);
+
+        if (selectedLobby.isLobbyGameStarted())
+            throw new IllegalStateException("Could not start game for Lobby. Game has already started!");
+
+        selectedLobby.setLobbyGameStarted(true);
+    }
+
     public void deleteAllLobbies() {
         lobbies.clear();
     }
