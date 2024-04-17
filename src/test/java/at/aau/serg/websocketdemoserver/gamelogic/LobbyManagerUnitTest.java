@@ -37,7 +37,7 @@ public class LobbyManagerUnitTest {
     @Test
     public void testUniqueCodesGenerated() throws Exception {
         Set<String> lobbyCodes = lobbyManager.getAllLobbies().stream()
-                .map(Lobby::lobbyCode)
+                .map(Lobby::getLobbyCode)
                 .collect(Collectors.toSet());
         assertEquals(0, lobbyCodes.size());
 
@@ -49,7 +49,7 @@ public class LobbyManagerUnitTest {
 
         // Check that all generated lobby codes are unique
         lobbyCodes = lobbyManager.getAllLobbies().stream()
-                .map(Lobby::lobbyCode)
+                .map(Lobby::getLobbyCode)
                 .collect(Collectors.toSet());
         assertEquals(numLobbies, lobbyCodes.size());
     }
@@ -61,7 +61,7 @@ public class LobbyManagerUnitTest {
         LobbyManager lobbyManager2 = LobbyManager.getInstance();
 
         lobbyManager1.createLobby();
-        String lobbyCode = lobbyManager2.getAllLobbies().get(0).lobbyCode();
+        String lobbyCode = lobbyManager2.getAllLobbies().get(0).getLobbyCode();
         assertNotNull(lobbyCode);
     }
 
@@ -87,7 +87,7 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, playerID, playerName);
         List<Lobby> lobbies = lobbyManager.getAllLobbies();
         for (Lobby lobby : lobbies) {
-            if (lobby.lobbyCode().equals(lobbyCode)) {
+            if (lobby.getLobbyCode().equals(lobbyCode)) {
                 assertTrue(lobby.getPlayerIDs().contains(playerID));
             }
         }
