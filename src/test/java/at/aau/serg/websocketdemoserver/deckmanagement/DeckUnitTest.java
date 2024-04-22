@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DeckUnitTest {
 
@@ -44,6 +43,14 @@ public class DeckUnitTest {
     }
 
     @Test
+    public void test_dealing_exception_tooManyPlayers() {
+        playerList.add(new Player("playerId4", "Player4"));
+        playerList.add(new Player("playerId4", "Player5"));
+        playerList.add(new Player("playerId6", "Player6"));
+        assertThrows(Exception.class, () -> deck.dealNewRound(playerList));
+    }
+
+    @Test
     public void test_dealing_gaia(){
         deck.dealNewRound(playerList);
         boolean gaiaFound = false;
@@ -54,5 +61,11 @@ public class DeckUnitTest {
             }
         }
         assertTrue(gaiaFound);
+    }
+
+    @Test
+    public void test_card_toString() {
+        Card card = new Card(CardType.BLUE, 123);
+        assertEquals("blue 123", card.toString());
     }
 }

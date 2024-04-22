@@ -2,16 +2,17 @@ package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.*;
 
 import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 
-@Data
 public class Deck {
 
     static final int MAX_CARD_VALUE = 12;
 
+    @Getter
     List<Card> deck;
 
     public Deck(){
@@ -39,9 +40,6 @@ public class Deck {
         for (Player player : players) {
             player.setCardsInHand(new ArrayList<>());
             for (int i = 0; i < cardsPerPlayer; i++) {
-                if (deckInPlay.isEmpty()){
-                    throw new IllegalArgumentException("Deck is empty!");
-                }
                 player.getCardsInHand().add(deckInPlay.remove(0));
             }
         }
