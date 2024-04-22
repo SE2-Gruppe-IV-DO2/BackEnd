@@ -20,6 +20,13 @@ public class Card {
         this.imgPath = this.color + this.value + ".png";
     }
 
+    public Card(Card card) {
+        this.cardType = card.cardType;
+        this.color = card.color;
+        this.value = card.value;
+        this.imgPath = card.imgPath;
+    }
+
     @Override
     public String toString() {
         return color + " " + value;

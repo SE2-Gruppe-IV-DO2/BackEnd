@@ -26,22 +26,21 @@ public class DeckUnitTest {
 
     @Test
     public void test_initialization_size() {
-        deck.initializeDeck();
-        assertEquals(deck.size(), 64);
+        assertEquals(64, deck.getDeck().size());
     }
 
     @Test
     public void test_dealing_numOfCards() {
         deck.dealNewRound(playerList);
-        assertEquals(playerList.get(0).getCardsInHand().size(), 15);
+        assertEquals(15, playerList.get(0).getCardsInHand().size());
 
         playerList.add(new Player("playerId4", "Player4"));
         deck.dealNewRound(playerList);
-        assertEquals(playerList.get(0).getCardsInHand().size(), 14);
+        assertEquals(14, playerList.get(0).getCardsInHand().size());
 
-        playerList.add(new Player("playerId4", "Player4"));
+        playerList.add(new Player("playerId5", "Player5"));
         deck.dealNewRound(playerList);
-        assertEquals(playerList.get(0).getCardsInHand().size(), 13);
+        assertEquals(13, playerList.get(0).getCardsInHand().size());
     }
 
     @Test

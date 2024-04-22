@@ -21,7 +21,7 @@ public class Deck {
 
     void initializeDeck(){
         for (CardType type : List.of(GREEN, YELLOW, RED, BLUE, PURPLE)){
-            for (int i = 1; i < MAX_CARD_VALUE; i++) {
+            for (int i = 1; i <= MAX_CARD_VALUE; i++) {
                 deck.add(new Card(type, i));
             }
         }
@@ -48,13 +48,13 @@ public class Deck {
     }
 
     List<Card> getShuffledSubsetWithAddedGaia(int numOfCards) {
-        if (numOfCards > size()){
+        if (numOfCards > size() + 1){
             throw new IllegalArgumentException("Number of Cards not supported by deck");
         }
 
-        // shuffle and take subset
+        // shuffle and take subset>
         Collections.shuffle(deck);
-        List<Card> subset = deck.subList(0, numOfCards - 1);
+        List<Card> subset = new ArrayList<>(deck.subList(0, numOfCards - 1).stream().map(Card::new).toList());
 
         // add gaia and shuffle again
         subset.add(new Card(CardType.GAIA, 0));
