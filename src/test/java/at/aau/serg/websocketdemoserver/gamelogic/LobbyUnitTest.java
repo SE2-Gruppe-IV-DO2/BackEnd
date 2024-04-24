@@ -91,4 +91,9 @@ public class LobbyUnitTest {
         lobby.setLobbyGameStarted(true);
         assertTrue(lobby.isLobbyGameStarted());
     }
+
+    @Test
+    public void testGetDeckFromLobby() {
+        assertNotNull(lobby.getDeck());
+    }
 }

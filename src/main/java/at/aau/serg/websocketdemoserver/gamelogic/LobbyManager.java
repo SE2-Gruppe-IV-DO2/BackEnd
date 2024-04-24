@@ -1,5 +1,7 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
+
 import java.util.*;
 
 public class LobbyManager {
@@ -88,5 +90,17 @@ public class LobbyManager {
 
     public String generateCode() {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, LOBBY_CODE_LENGTH).toUpperCase();
+    }
+
+    private Lobby findLobby(String code) throws Exception {
+        if (!lobbies.containsKey(code)) {
+            throw new Exception("Lobby not found");
+        }
+        return lobbies.get(code);
+    }
+
+    public void dealNewRound(String code) throws Exception {
+        Lobby lobby = findLobby(code);
+        lobby.getDeck().dealNewRound(lobby.getPlayers());
     }
 }

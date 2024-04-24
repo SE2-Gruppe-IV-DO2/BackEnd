@@ -36,6 +36,9 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY = "/app/start_game_for_lobby";
     private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE = "/topic/game_for_lobby_started";
 
+    private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND = "/app/deal_new_round";
+    private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE = "/topic/new-round-dealt";
+
     /**
      * Queue of messages from the server.
      */
@@ -79,6 +82,17 @@ class WebSocketBrokerIntegrationTest {
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(createLobbyResponse).isNullOrEmpty();
+    }
+
+    @Test
+    public void testWebSocketDealNewRound() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE);
+
+        // send a message to the server
+        session.send(WEBSOCKET_TOPIC_DEAL_NEW_ROUND, "");
+
+        String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(dealNewRoundResponse).isNullOrEmpty();
     }
 
     @Test
