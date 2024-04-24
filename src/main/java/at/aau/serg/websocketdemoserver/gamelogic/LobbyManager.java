@@ -1,7 +1,5 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
-import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
-
 import java.util.*;
 
 public class LobbyManager {
