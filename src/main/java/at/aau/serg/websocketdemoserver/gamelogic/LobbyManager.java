@@ -1,7 +1,5 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
-import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
-
 import java.util.*;
 
 public class LobbyManager {
@@ -50,6 +48,18 @@ public class LobbyManager {
         return new ArrayList<>(lobbies.values());
     }
 
+    public void startGameForLobby(String lobbyCode) {
+        if (!lobbies.containsKey(lobbyCode))
+            throw new IllegalArgumentException("Lobby with code '" + lobbyCode + "' does not exist!");
+
+        Lobby selectedLobby = lobbies.get(lobbyCode);
+
+        if (selectedLobby.isLobbyGameStarted())
+            throw new IllegalStateException("Could not start game for Lobby. Game has already started!");
+
+        selectedLobby.setLobbyGameStarted(true);
+    }
+
     public void deleteAllLobbies() {
         lobbies.clear();
     }
@@ -76,7 +86,7 @@ public class LobbyManager {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, LOBBY_CODE_LENGTH).toUpperCase();
     }
 
-    private Lobby findLobby(String code) throws Exception {
+    public Lobby getLobbyByCode(String code) throws Exception {
         if (!lobbies.containsKey(code)) {
             throw new Exception("Lobby not found");
         }
@@ -84,7 +94,7 @@ public class LobbyManager {
     }
 
     public void dealNewRound(String code) throws Exception {
-        Lobby lobby = findLobby(code);
+        Lobby lobby = getLobbyByCode(code);
         lobby.getDeck().dealNewRound(lobby.getPlayers());
     }
 }

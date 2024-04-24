@@ -33,6 +33,9 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_CREATE_LOBBY = "/app/create_new_lobby";
     private final String WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE = "/topic/lobby-created";
 
+    private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY = "/app/start_game_for_lobby";
+    private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE = "/topic/game_for_lobby_started";
+
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND = "/app/deal_new_round";
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE = "/topic/new-round-dealt";
 
@@ -59,7 +62,11 @@ class WebSocketBrokerIntegrationTest {
 
         // send a message to the server
         //Player player = new Player("TEST_USER", "TEST_USER_NAME");
-        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, "TEST_USER");
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME";
+        String payload = String.format("{\"userID\":\"%s\", \"userName\":\"%s\"}", userID, userName);
+
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(createLobbyResponse).isNotEmpty();
@@ -86,6 +93,28 @@ class WebSocketBrokerIntegrationTest {
 
         String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(dealNewRoundResponse).isNullOrEmpty();
+    }
+
+    @Test
+    public void testWebSocketStartGameForLobby() throws Exception {
+
+        // create a new lobby and start the game
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME";
+        String payload = String.format("{\"userID\":\"%s\", \"userName\":\"%s\"}", userID, userName);
+
+        StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+        lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("createLobbyResponse:" + createLobbyResponse);
+
+        assert createLobbyResponse != null;
+        StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
+        String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
+
+        assertThat(startGameResponse).isNotEmpty();
     }
 
     /**

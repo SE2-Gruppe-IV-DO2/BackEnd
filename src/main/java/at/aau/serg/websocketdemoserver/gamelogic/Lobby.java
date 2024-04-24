@@ -2,6 +2,7 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,9 @@ public class Lobby {
     private final List<Player> players = new ArrayList<>();
     @Getter
     private final String lobbyCode;
+    @Getter
+    @Setter
+    private boolean lobbyGameStarted = false;
     public static final int MAX_PLAYER_COUNT = 5;
     public static final int MIN_PLAYER_FOR_GAME_START_COUNT = 3;
     @Getter

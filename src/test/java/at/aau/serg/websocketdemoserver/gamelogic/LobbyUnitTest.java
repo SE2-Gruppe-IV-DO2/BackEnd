@@ -82,6 +82,17 @@ public class LobbyUnitTest {
     }
 
     @Test
+    public void lobbyGameStartedDefaultValueIsFalse() {
+        assertFalse(lobby.isLobbyGameStarted());
+    }
+
+    @Test
+    public void lobbyGameStartedSetterAndGetter() {
+        lobby.setLobbyGameStarted(true);
+        assertTrue(lobby.isLobbyGameStarted());
+    }
+
+    @Test
     public void testGetDeckFromLobby() {
         assertNotNull(lobby.getDeck());
     }
