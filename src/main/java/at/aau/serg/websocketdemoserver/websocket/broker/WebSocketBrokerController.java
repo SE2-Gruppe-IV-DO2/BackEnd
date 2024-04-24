@@ -5,6 +5,7 @@ import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;

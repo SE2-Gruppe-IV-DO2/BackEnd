@@ -50,10 +50,6 @@ public class LobbyManager {
         return new ArrayList<>(lobbies.values());
     }
 
-    public Lobby getLobbyByCode(String lobbyCode) {
-        return lobbies.get(lobbyCode);
-    }
-
     public void startGameForLobby(String lobbyCode) {
         if (!lobbies.containsKey(lobbyCode))
             throw new IllegalArgumentException("Lobby with code '" + lobbyCode + "' does not exist!");
@@ -92,7 +88,7 @@ public class LobbyManager {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, LOBBY_CODE_LENGTH).toUpperCase();
     }
 
-    private Lobby findLobby(String code) throws Exception {
+    public Lobby getLobbyByCode(String code) throws Exception {
         if (!lobbies.containsKey(code)) {
             throw new Exception("Lobby not found");
         }
@@ -100,7 +96,7 @@ public class LobbyManager {
     }
 
     public void dealNewRound(String code) throws Exception {
-        Lobby lobby = findLobby(code);
+        Lobby lobby = getLobbyByCode(code);
         lobby.getDeck().dealNewRound(lobby.getPlayers());
     }
 }
