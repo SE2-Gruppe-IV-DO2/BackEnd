@@ -117,6 +117,27 @@ class WebSocketBrokerIntegrationTest {
         assertThat(startGameResponse).isNotEmpty();
     }
 
+    @Test
+    public void testWebSocket_GetPlayerTurnUpdate() throws Exception {
+        // create a new lobby and start the game
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME";
+        String payload = String.format("{\"userID\":\"%s\", \"userName\":\"%s\"}", userID, userName);
+
+        StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+        lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("createLobbyResponse:" + createLobbyResponse);
+
+        assert createLobbyResponse != null;
+        StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
+        String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
+
+        //TODO: Add tests if the message for the active player came
+    }
+
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
      */

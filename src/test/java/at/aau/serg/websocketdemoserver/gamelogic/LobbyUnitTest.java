@@ -3,6 +3,10 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LobbyUnitTest {
@@ -95,5 +99,61 @@ public class LobbyUnitTest {
     @Test
     public void testGetDeckFromLobby() {
         assertNotNull(lobby.getDeck());
+    }
+
+    @Test
+    public void testGetActivePlayer() {
+        Player player1 = new Player("1", "TEST");
+        lobby.addPlayer(player1);
+
+        assertEquals(player1, lobby.getActivePlayer());
+    }
+
+    @Test
+    public void testEndTurnForMultiplePlayer() {
+        Player player1 = new Player("1", "TEST");
+        Player player2 = new Player("2", "TEST");
+        Player player3 = new Player("3", "TEST");
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+        lobby.addPlayer(player3);
+
+        lobby.endCurrentPlayersTurn();
+        assertEquals(player2, lobby.getActivePlayer());
+    }
+
+    @Test
+    public void testEndTurnForOneFullRound() {
+        Player player1 = new Player("1", "TEST");
+        Player player2 = new Player("2", "TEST");
+        Player player3 = new Player("3", "TEST");
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+        lobby.addPlayer(player3);
+
+        lobby.endCurrentPlayersTurn();
+        lobby.endCurrentPlayersTurn();
+        lobby.endCurrentPlayersTurn();
+
+        assertEquals(player1, lobby.getActivePlayer());
+    }
+
+    @Test
+    public void testGetActivePlayer_IndexOutOfBounds() throws NoSuchFieldException, IllegalAccessException {
+        Player player1 = new Player("1", "TEST");
+        lobby.addPlayer(player1);
+
+        // Simulate the case where indexOfActivePlayer is greater than the size of the players list
+        int indexOfActivePlayer = 2; // Assuming players list has only 2 elements
+        setPrivateField(lobby, "indexOfActivePlayer", indexOfActivePlayer);
+
+        assertThrows(IllegalStateException.class, lobby::getActivePlayer);
+    }
+
+    // Helper method to set private fields using reflection
+    private void setPrivateField(Object object, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
+        Field field = object.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(object, value);
     }
 }

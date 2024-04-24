@@ -19,6 +19,8 @@ public class Lobby {
     public static final int MIN_PLAYER_FOR_GAME_START_COUNT = 3;
     @Getter
     public Deck deck;
+    @Getter
+    private int indexOfActivePlayer = -1;
 
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
@@ -33,6 +35,9 @@ public class Lobby {
             throw new IllegalArgumentException("Invalid player ID");
         if (isFull())
             throw new IllegalStateException("Cannot add player: Lobby is full");
+
+        if (players.isEmpty())
+            indexOfActivePlayer = 0;
 
         players.add(player);
     }
@@ -57,5 +62,22 @@ public class Lobby {
 
     public boolean isReadyToStart() {
         return players.size() >= MIN_PLAYER_FOR_GAME_START_COUNT && players.size() <= MAX_PLAYER_COUNT;
+    }
+
+    public Player getActivePlayer() {
+        if (indexOfActivePlayer == -1)
+            return null;
+
+        if (indexOfActivePlayer >= players.size())
+            throw new IllegalStateException("Lobby players is in an illegal state! Index is wrong!");
+
+        return players.get(indexOfActivePlayer);
+    }
+
+    public void endCurrentPlayersTurn() {
+        indexOfActivePlayer++;
+
+        if (indexOfActivePlayer >= players.size())
+            indexOfActivePlayer = 0;
     }
 }

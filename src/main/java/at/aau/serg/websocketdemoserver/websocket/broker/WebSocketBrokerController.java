@@ -8,6 +8,7 @@ import org.springframework.web.util.HtmlUtils;
 
 @Controller
 public class WebSocketBrokerController {
+    private LobbyManager lobbyManager = LobbyManager.getInstance();
 
     @MessageMapping("/hello")
     @SendTo("/topic/hello-response")
@@ -20,7 +21,6 @@ public class WebSocketBrokerController {
     @SendTo("/topic/lobby-created")
     public String createNewLobby(String userID, String userName) throws Exception {
         // Create a new lobby and return its ID
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         String newlyCreatedLobbyCode = lobbyManager.createLobby();
         lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, userID, userName);
         return newlyCreatedLobbyCode;
@@ -30,7 +30,6 @@ public class WebSocketBrokerController {
     @SendTo("/topic/lobby-joined")
     public String joinLobby(String lobbyCode, String userID, String userName) {
         // Join an existing lobby
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         lobbyManager.addPlayerToLobby(lobbyCode, userID, userName);
 
         return "";
@@ -39,7 +38,6 @@ public class WebSocketBrokerController {
     @MessageMapping("/deal_new_round")
     @SendTo("/topic/new-round-dealt")
     public String dealNewRound(String lobbyCode) throws Exception{
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         lobbyManager.dealNewRound(lobbyCode);
         return "";
     }
@@ -47,10 +45,15 @@ public class WebSocketBrokerController {
     @MessageMapping("/start_game_for_lobby")
     @SendTo("/topic/game_for_lobby_started")
     public String startGameForLobby(String lobbyCode) {
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         lobbyManager.startGameForLobby(lobbyCode);
 
         return "Game started!";
     }
 
+    @MessageMapping("/TEST_PLAY_CARD")
+    @SendTo("/topic/active_player_changed")
+    public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
+        lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+        return lobbyManager.getActivePlayerForLobby(lobbyCode);
+    }
 }

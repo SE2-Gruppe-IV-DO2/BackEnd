@@ -8,8 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class LobbyManagerUnitTest {
     private LobbyManager lobbyManager;
@@ -186,5 +185,17 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, new Player("playerID3", "Player3"));
 
         assertDoesNotThrow(() -> lobbyManager.dealNewRound(lobbyCode));
+    }
+
+    @Test
+    public void testEndCurrentPlayersTurnForLobby() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        Player player1 = new Player("playerID1", "Player1");
+        Player player2 = new Player("playerID2", "Player2");
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+
+        lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
     }
 }
