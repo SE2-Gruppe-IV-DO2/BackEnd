@@ -1,21 +1,26 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Lobby {
+    @Getter
     private final List<Player> players = new ArrayList<>();
     @Getter
     private final String lobbyCode;
     public static final int MAX_PLAYER_COUNT = 5;
     public static final int MIN_PLAYER_FOR_GAME_START_COUNT = 3;
+    @Getter
+    public Deck deck;
 
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
             throw new IllegalArgumentException("Invalid lobby code");
         }
+        this.deck = new Deck();
         this.lobbyCode = lobbyCode.trim();
     }
 

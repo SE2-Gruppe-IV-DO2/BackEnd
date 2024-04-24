@@ -143,4 +143,25 @@ public class LobbyManagerUnitTest {
     public void testIsPlayerInLobby_NullPlayerID() {
         assertFalse(lobbyManager.isPlayerInLobby("lobby1", null));
     }
+
+    @Test
+    public void testDealNewRound_withNullLobbyCode() {
+        assertThrows(Exception.class, () -> lobbyManager.dealNewRound(null));
+    }
+
+    @Test
+    public void testDealNewRound_withCorrectLobbyCodeButNoPlayers() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        assertThrows(Exception.class, () -> lobbyManager.dealNewRound(lobbyCode));
+    }
+
+    @Test
+    public void testDealNewRound_withCorrectLobbyCodeAndPlayers() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        lobbyManager.addPlayerToLobby(lobbyCode, new Player("playerID1", "Player1"));
+        lobbyManager.addPlayerToLobby(lobbyCode, new Player("playerID2", "Player2"));
+        lobbyManager.addPlayerToLobby(lobbyCode, new Player("playerID3", "Player3"));
+
+        assertDoesNotThrow(() -> lobbyManager.dealNewRound(lobbyCode));
+    }
 }

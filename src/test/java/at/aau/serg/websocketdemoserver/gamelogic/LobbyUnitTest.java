@@ -80,4 +80,9 @@ public class LobbyUnitTest {
         }
         assertTrue(lobby.isReadyToStart());
     }
+
+    @Test
+    public void testGetDeckFromLobby() {
+        assertNotNull(lobby.getDeck());
+    }
 }
