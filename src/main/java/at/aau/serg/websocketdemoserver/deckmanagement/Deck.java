@@ -64,4 +64,22 @@ public class Deck {
     int size() {
         return deck.size();
     }
+
+    public String evaluateTrick(LinkedHashMap<String, Card> playedCards) {
+        String winningPlayerId = "";
+        String winningColor = "";
+        int currentHighestValue = -1;
+        for (String playerId : playedCards.keySet()){
+            Card current = playedCards.get(playerId);
+
+            winningColor = winningColor.isEmpty() ? current.cardType.getColor() : winningColor;
+
+            if (current.cardType.getColor().equals(winningColor) && current.value > currentHighestValue) {
+                currentHighestValue = current.value;
+                winningPlayerId = playerId;
+            }
+        }
+
+        return winningPlayerId;
+    }
 }
