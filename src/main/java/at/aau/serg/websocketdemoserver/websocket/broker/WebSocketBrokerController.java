@@ -23,9 +23,6 @@ public class WebSocketBrokerController {
     @SendTo("/topic/lobby-created")
     public String createNewLobby(LobbyCreationRequest creationRequest) throws Exception {
         // Create a new lobby and return its ID
-        System.out.println("userID:" + creationRequest.getUserID());
-        System.out.println("userName:" + creationRequest.getUserName());
-
         String newlyCreatedLobbyCode = lobbyManager.createLobby();
         lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, creationRequest.getUserID(), creationRequest.getUserName());
         return newlyCreatedLobbyCode;
@@ -35,10 +32,6 @@ public class WebSocketBrokerController {
     @SendTo("/topic/lobby-joined")
     public String joinLobby(JoinLobbyRequest joinLobbyRequest) {
         // Join an existing lobby
-        System.out.println("lobbyCode:" + joinLobbyRequest.getLobbyCode());
-        System.out.println("userID:" + joinLobbyRequest.getUserID());
-        System.out.println("userName:" + joinLobbyRequest.getUserName());
-
         lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
 
         return joinLobbyRequest.getLobbyCode();
