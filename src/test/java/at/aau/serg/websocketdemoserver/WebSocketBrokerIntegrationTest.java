@@ -199,7 +199,7 @@ class WebSocketBrokerIntegrationTest {
      */
     public StompSession initStompSession(String websocketTopic) throws Exception {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        List<MessageConverter> converters = new ArrayList<MessageConverter>();
+        List<MessageConverter> converters = new ArrayList<>();
         converters.add(new MappingJackson2MessageConverter()); // used to handle json messages
         converters.add(new StringMessageConverter()); // used to handle raw strings
         stompClient.setMessageConverter(new CompositeMessageConverter(converters));
