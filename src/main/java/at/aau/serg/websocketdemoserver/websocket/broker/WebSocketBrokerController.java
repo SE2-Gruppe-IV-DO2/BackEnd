@@ -1,6 +1,8 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.LobbyCreationRequest;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -8,6 +10,7 @@ import org.springframework.web.util.HtmlUtils;
 
 @Controller
 public class WebSocketBrokerController {
+    private LobbyManager lobbyManager = LobbyManager.getInstance();
 
     @MessageMapping("/hello")
     @SendTo("/topic/hello-response")
@@ -18,28 +21,32 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/create_new_lobby")
     @SendTo("/topic/lobby-created")
-    public String createNewLobby(String userID, String userName) throws Exception {
+    public String createNewLobby(LobbyCreationRequest creationRequest) throws Exception {
         // Create a new lobby and return its ID
-        LobbyManager lobbyManager = LobbyManager.getInstance();
+        System.out.println("userID:" + creationRequest.getUserID());
+        System.out.println("userName:" + creationRequest.getUserName());
+
         String newlyCreatedLobbyCode = lobbyManager.createLobby();
-        lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, userID, userName);
+        lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, creationRequest.getUserID(), creationRequest.getUserName());
         return newlyCreatedLobbyCode;
     }
 
     @MessageMapping("/join_lobby")
     @SendTo("/topic/lobby-joined")
-    public String joinLobby(String lobbyCode, String userID, String userName) {
+    public String joinLobby(JoinLobbyRequest joinLobbyRequest) {
         // Join an existing lobby
-        LobbyManager lobbyManager = LobbyManager.getInstance();
-        lobbyManager.addPlayerToLobby(lobbyCode, userID, userName);
+        System.out.println("lobbyCode:" + joinLobbyRequest.getLobbyCode());
+        System.out.println("userID:" + joinLobbyRequest.getUserID());
+        System.out.println("userName:" + joinLobbyRequest.getUserName());
 
-        return "";
+        lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
+
+        return joinLobbyRequest.getLobbyCode();
     }
 
     @MessageMapping("/deal_new_round")
     @SendTo("/topic/new-round-dealt")
     public String dealNewRound(String lobbyCode) throws Exception{
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         lobbyManager.dealNewRound(lobbyCode);
         return "";
     }
@@ -47,10 +54,15 @@ public class WebSocketBrokerController {
     @MessageMapping("/start_game_for_lobby")
     @SendTo("/topic/game_for_lobby_started")
     public String startGameForLobby(String lobbyCode) {
-        LobbyManager lobbyManager = LobbyManager.getInstance();
         lobbyManager.startGameForLobby(lobbyCode);
 
         return "Game started!";
     }
 
+    //@MessageMapping("/TEST_PLAY_CARD")
+    //@SendTo("/topic/active_player_changed")
+    //public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
+    //    lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+    //    return lobbyManager.getActivePlayerForLobby(lobbyCode);
+    //}
 }
