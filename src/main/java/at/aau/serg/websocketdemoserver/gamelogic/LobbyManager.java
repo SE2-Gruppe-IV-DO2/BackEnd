@@ -1,5 +1,7 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
+
 import java.util.*;
 
 public class LobbyManager {
@@ -96,5 +98,10 @@ public class LobbyManager {
     public void dealNewRound(String code) throws Exception {
         Lobby lobby = getLobbyByCode(code);
         lobby.getDeck().dealNewRound(lobby.getPlayers());
+    }
+
+    public void cardPlayed(CardPlayRequest cardPlayRequest) {
+        Lobby l = lobbies.get(cardPlayRequest.getLobbyCode());
+        l.getPlayerByID(cardPlayRequest.getPlayerID()).playCard(cardPlayRequest.getColor(), cardPlayRequest.getValue());
     }
 }

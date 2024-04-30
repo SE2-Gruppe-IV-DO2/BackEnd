@@ -1,15 +1,17 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class LobbyManagerUnitTest {
     private LobbyManager lobbyManager;

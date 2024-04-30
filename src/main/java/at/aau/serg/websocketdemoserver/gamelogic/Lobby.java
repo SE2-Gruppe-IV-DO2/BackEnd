@@ -47,6 +47,15 @@ public class Lobby {
         return playerIDs;
     }
 
+    public Player getPlayerByID(String playerID) {
+        for (Player player : players) {
+            if (player.getPlayerID().equals(playerID)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
     static boolean isValid(String code) {
         return code != null && !code.trim().isEmpty();
     }
