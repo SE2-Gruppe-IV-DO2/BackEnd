@@ -231,16 +231,18 @@ public class LobbyManagerUnitTest {
 
     @Test
     void testCardPlayedFailurePlayer() {
-        CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
-        cardPlayRequest.setLobbyCode("123");
-        cardPlayRequest.setPlayerID("123");
-        cardPlayRequest.setColor("blue");
+        String lobbyCode;
         try {
-            lobbyManager.createLobby();
+            lobbyCode = lobbyManager.createLobby();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(3);
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setColor("blue");
+
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
     }

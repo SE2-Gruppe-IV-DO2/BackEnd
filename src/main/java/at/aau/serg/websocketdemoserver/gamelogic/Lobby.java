@@ -22,7 +22,6 @@ public class Lobby {
     @Getter
     public Deck deck;
     @Getter
-    @Setter
     private List<Card> currentTrick;
 
     public Lobby(String lobbyCode) {

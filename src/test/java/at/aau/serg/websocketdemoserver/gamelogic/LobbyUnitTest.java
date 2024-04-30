@@ -96,4 +96,18 @@ public class LobbyUnitTest {
     public void testGetDeckFromLobby() {
         assertNotNull(lobby.getDeck());
     }
+
+    @Test
+    void testGetPlayerByIDSuccess() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        assertEquals(p, lobby.getPlayerByID("player1"));
+    }
+
+    @Test
+    void testGetPLayerByIDFailure() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        assertNull(lobby.getPlayerByID("1"));
+    }
 }
