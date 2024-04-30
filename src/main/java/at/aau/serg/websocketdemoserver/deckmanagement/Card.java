@@ -1,14 +1,16 @@
 package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-@Data
-public class Card {
 
+public class Card {
     CardType cardType;
+    @Getter
     String color;
+    @Getter
     Integer value;
     String imgPath;
 
