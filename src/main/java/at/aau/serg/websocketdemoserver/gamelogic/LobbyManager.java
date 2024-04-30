@@ -1,5 +1,6 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 
 import java.util.*;
@@ -102,6 +103,17 @@ public class LobbyManager {
 
     public void cardPlayed(CardPlayRequest cardPlayRequest) {
         Lobby l = lobbies.get(cardPlayRequest.getLobbyCode());
-        l.getPlayerByID(cardPlayRequest.getPlayerID()).playCard(cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        if (l == null) {
+            throw new IllegalArgumentException("Lobby not found");
+        }
+        Player player = l.getPlayerByID(cardPlayRequest.getPlayerID());
+        if (player == null) {
+            throw new IllegalArgumentException("Player not found in the lobby");
+        }
+        Card c = player.playCard(cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        if (c == null) {
+            throw new IllegalArgumentException("Card not found in player's hand");
+        }
+        l.getCurrentTrick().add(c);
     }
 }

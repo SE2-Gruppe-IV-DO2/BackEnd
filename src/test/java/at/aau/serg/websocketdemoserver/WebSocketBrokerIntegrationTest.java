@@ -48,6 +48,9 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND = "/app/deal_new_round";
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE = "/topic/new-round-dealt";
 
+    private final String WEBSOCKET_TOPIC_PLAY_CARD = "/app/play_card";
+    private final String WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE = "/topic/card_played";
+
     /**
      * Queue of messages from the server.
      */
@@ -193,6 +196,64 @@ class WebSocketBrokerIntegrationTest {
 
         //TODO: Add tests if the message for the active player came
     }
+    /*
+    @Test
+    void testPlayCardEndpoint() throws Exception {
+        String userID = "123";
+        String userName = "TEST_USER_NAME1";
+        JSONObject startUserJSON = new JSONObject();
+        startUserJSON.put("userID", userID);
+        startUserJSON.put("userName", userName);
+        StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+        lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, startUserJSON);
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("createLobbyResponse:" + createLobbyResponse);
+        assert createLobbyResponse != null;
+
+        String player2ID = "TEST_USER_ID";
+        String player2Name = "TEST_USER_NAME";
+        JSONObject payload = new JSONObject();
+        payload.put("lobbyCode", createLobbyResponse);
+        payload.put("userID", player2ID);
+        payload.put("userName", player2Name);
+        StompSession joinPlayerSession = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        joinPlayerSession.send(WEBSOCKET_TOPIC_JOIN_LOBBY, payload);
+        String joinLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("joinLobbyResponse:" + joinLobbyResponse);
+        assert joinLobbyResponse != null;
+
+        String player3ID = "TEST_USER_ID2";
+        String player3Name = "TEST_USER_NAME2";
+        JSONObject payload2= new JSONObject();
+        payload.put("lobbyCode", createLobbyResponse);
+        payload.put("userID", player3ID);
+        payload.put("userName", player3Name);
+        StompSession joinPlayerSession2 = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        joinPlayerSession2.send(WEBSOCKET_TOPIC_JOIN_LOBBY, payload);
+        String joinLobbyResponse2 = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("joinLobbyResponse:" + joinLobbyResponse2);
+        assert joinLobbyResponse2 != null;
+
+        StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY);
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
+        String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("startGameResponse:" + startGameResponse);
+        assert startGameResponse != null;
+
+        String playerID = "TEST_USER_ID";
+        String color = "red";
+        Integer value = 3;
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("lobbyCode", createLobbyResponse);
+        jsonObject.put("playerID", playerID);
+        jsonObject.put("color", color);
+        jsonObject.put("value", value);
+        StompSession sessionCardPlay = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
+        sessionCardPlay.send(WEBSOCKET_TOPIC_PLAY_CARD, jsonObject);
+        String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(playCardResponse).isNotEmpty();
+    }
+     */
 
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
@@ -217,7 +278,4 @@ class WebSocketBrokerIntegrationTest {
 
         return session;
     }
-
-
-
 }

@@ -1,11 +1,11 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -188,5 +188,79 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, new Player("playerID3", "Player3"));
 
         assertDoesNotThrow(() -> lobbyManager.dealNewRound(lobbyCode));
+    }
+
+    @Test
+    void testCardPlayedSuccess() {
+        String lobbyCode;
+        try {
+            lobbyCode = lobbyManager.createLobby();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        Player player = new Player("123", "John");
+        lobbyManager.addPlayerToLobby(lobbyCode, player);
+        Card card = new Card(CardType.BLUE, 3);
+        player.getCardsInHand().add(card);
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(3);
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setColor("blue");
+
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        assertEquals(0, player.getCardsInHand().size());
+        try {
+            assertTrue(lobbyManager.getLobbyByCode(lobbyCode).getCurrentTrick().contains(card));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testCardPlayedFailureLobby() {
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(3);
+        cardPlayRequest.setLobbyCode("123");
+        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setColor("blue");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
+    }
+
+    @Test
+    void testCardPlayedFailurePlayer() {
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(3);
+        cardPlayRequest.setLobbyCode("123");
+        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setColor("blue");
+        try {
+            lobbyManager.createLobby();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
+    }
+
+    @Test
+    void testCardPlayedFailureCard() {
+        String lobbyCode;
+        try {
+            lobbyCode = lobbyManager.createLobby();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        Player player = new Player("123", "John");
+        lobbyManager.addPlayerToLobby(lobbyCode, player);
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(3);
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setColor("blue");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
     }
 }

@@ -1,19 +1,15 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import java.util.ArrayList;
-import java.util.List;
+import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class PlayerUnitTest {
-    @Mock
-    private Card mockedCard;
+
+class PlayerUnitTest {
     @Test
-    public void testConstructorAndGetters() {
+    void testConstructorAndGetters() {
         String playerID = "123";
         String playerName = "John";
 
@@ -24,7 +20,7 @@ public class PlayerUnitTest {
     }
 
     @Test
-    public void testSetter() {
+    void testSetter() {
         Player player = new Player("123", "John");
 
         String newName = "Mike";
@@ -34,35 +30,28 @@ public class PlayerUnitTest {
     }
 
     @Test
-    public void testPlayCard_RemovesCardFromHand() {
+    void testPlayCardCardFound() {
         Player player = new Player("123", "John");
-        mockedCard = mock(Card.class);
-        when(mockedCard.getColor()).thenReturn("Red");
-        when(mockedCard.getValue()).thenReturn(5);
+        Card card1 = new Card(RED, 5);
+        Card card2 = new Card(BLUE, 3);
+        player.getCardsInHand().add(card1);
+        player.getCardsInHand().add(card2);
 
-        List<Card> cardsInHand = new ArrayList<>();
-        cardsInHand.add(mockedCard);
-        player.setCardsInHand(cardsInHand);
+        Card playedCard = player.playCard("red", 5);
 
-        player.playCard("Red", 5);
-
-        assertEquals(0, player.getCardsInHand().size());
-    }
-
-    @Test
-    public void testPlayCard_DoesNotRemoveNonexistentCard() {
-        Player player = new Player("123", "John");
-        mockedCard = mock(Card.class);
-        when(mockedCard.getColor()).thenReturn("Blue");
-        when(mockedCard.getValue()).thenReturn(3);
-
-        List<Card> cardsInHand = new ArrayList<>();
-        cardsInHand.add(mockedCard);
-        player.setCardsInHand(cardsInHand);
-
-        player.playCard("Red", 5);
-
+        assertEquals(card1, playedCard);
         assertEquals(1, player.getCardsInHand().size());
     }
 
+    @Test()
+    void testPlayCardCardNotFound() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(RED, 2);
+        Card card2 = new Card(BLUE, 3);
+        player.getCardsInHand().add(card1);
+        player.getCardsInHand().add(card2);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCard("green", 5));
+
+    }
 }
