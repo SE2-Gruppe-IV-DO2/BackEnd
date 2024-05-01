@@ -102,18 +102,18 @@ public class LobbyManager {
     }
 
     public void cardPlayed(CardPlayRequest cardPlayRequest) {
-        Lobby l = lobbies.get(cardPlayRequest.getLobbyCode());
-        if (l == null) {
+        Lobby targetLobby = lobbies.get(cardPlayRequest.getLobbyCode());
+        if (targetLobby == null) {
             throw new IllegalArgumentException("Lobby not found");
         }
-        Player player = l.getPlayerByID(cardPlayRequest.getPlayerID());
+        Player player = targetLobby.getPlayerByID(cardPlayRequest.getPlayerID());
         if (player == null) {
             throw new IllegalArgumentException("Player not found in the lobby");
         }
-        Card c = player.playCard(cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        Card c = player.playCardForPlayer(cardPlayRequest.getColor(), cardPlayRequest.getValue());
         if (c == null) {
             throw new IllegalArgumentException("Card not found in player's hand");
         }
-        l.getCurrentTrick().add(c);
+        targetLobby.getCurrentTrick().add(c);
     }
 }

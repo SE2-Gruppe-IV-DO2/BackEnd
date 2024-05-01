@@ -30,28 +30,28 @@ class PlayerUnitTest {
     }
 
     @Test
-    void testPlayCardCardFound() {
+    void testPlayCardCardForPlayerFound() {
         Player player = new Player("123", "John");
         Card card1 = new Card(RED, 5);
         Card card2 = new Card(BLUE, 3);
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Card playedCard = player.playCard("red", 5);
+        Card playedCard = player.playCardForPlayer("red", 5);
 
         assertEquals(card1, playedCard);
         assertEquals(1, player.getCardsInHand().size());
     }
 
     @Test()
-    void testPlayCardCardNotFound() {
+    void testPlayCardCardForPlayerNotFound() {
         Player player = new Player("123", "John");
         Card card1 = new Card(RED, 2);
         Card card2 = new Card(BLUE, 3);
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCard("green", 5));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", 5));
 
     }
 }
