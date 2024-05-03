@@ -74,7 +74,7 @@ public class DeckUnitTest {
         playedCards.put("playerID1", new Card(CardType.BLUE, 1));
         playedCards.put("playerID2", new Card(CardType.BLUE, 12));
         playedCards.put("playerID3", new Card(CardType.BLUE, 3));
-        assertEquals("playerID2", deck.evaluateTrick(playedCards));
+        assertEquals("playerID2", deck.evaluateWinningPlayerForRound(playedCards));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class DeckUnitTest {
         playedCards.put("playerID2", new Card(CardType.GOLDEN_SICKLE, 0));
         playedCards.put("playerID3", new Card(CardType.MISTLETOE, 0));
         playedCards.put("playerID4", new Card(CardType.MISTLETOE, 0));
-        assertEquals("playerID1", deck.evaluateTrick(playedCards));
+        assertEquals("playerID1", deck.evaluateWinningPlayerForRound(playedCards));
     }
 
     @Test
@@ -94,6 +94,6 @@ public class DeckUnitTest {
         playedCards.put("playerID2", new Card(CardType.GOLDEN_SICKLE, 0));
         playedCards.put("playerID3", new Card(CardType.RED, 8));
         playedCards.put("playerID4", new Card(CardType.BLUE, 4));
-        assertEquals("playerID3", deck.evaluateTrick(playedCards));
+        assertEquals("playerID3", deck.evaluateWinningPlayerForRound(playedCards));
     }
 }
