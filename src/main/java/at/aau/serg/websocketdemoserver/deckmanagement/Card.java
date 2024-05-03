@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -9,6 +10,7 @@ public class Card {
 
     CardType cardType;
     String color;
+    @Getter
     Integer value;
     String imgPath;
 
@@ -16,7 +18,7 @@ public class Card {
         this.cardType = cardType;
         this.color = cardType.getColor();
         this.value = value;
-        this.imgPath = this.color + this.value + ".png";
+        this.imgPath = cardType.getName() + this.value + ".png";
     }
 
     public Card(Card card) {
