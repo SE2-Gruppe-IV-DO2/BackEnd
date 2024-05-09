@@ -1,8 +1,10 @@
 package at.aau.serg.websocketdemoserver;
 
+import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +49,9 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND = "/app/deal_new_round";
     private final String WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE = "/topic/new-round-dealt";
+
+    private final String WEBSOCKET_TOPIC_PLAY_CARD = "/app/play_card";
+    private final String WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE = "/topic/card_played";
 
     /**
      * Queue of messages from the server.
@@ -193,6 +198,25 @@ class WebSocketBrokerIntegrationTest {
 
         //TODO: Add tests if the message for the active player came
     }
+    /*
+    @Test
+    void testPlayCardEndpoint() throws Exception {
+        String lobbyCode = setUpInitialPlayableLobby();
+
+        String color = "red";
+        Integer value = 3;
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("lobbyCode", lobbyCode);
+        jsonObject.put("playerID", "TEST_USER_ID");
+        jsonObject.put("color", color);
+        jsonObject.put("value", value);
+        StompSession sessionCardPlay = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
+        sessionCardPlay.send(WEBSOCKET_TOPIC_PLAY_CARD, jsonObject);
+        String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(playCardResponse).isNotEmpty();
+        assertEquals(jsonObject.toString(), playCardResponse);
+    }
+     */
 
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
@@ -217,5 +241,57 @@ class WebSocketBrokerIntegrationTest {
 
         return session;
     }
+    /*
+    public String setUpInitialPlayableLobby() throws Exception {
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME1";
+        JSONObject startUserJSON = new JSONObject();
+        startUserJSON.put("userID", userID);
+        startUserJSON.put("userName", userName);
+        StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+        lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, startUserJSON);
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("createLobbyResponse:" + createLobbyResponse);
+        assert createLobbyResponse != null;
 
+        userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
+        userName = "TEST_USER_NAME";
+        JSONObject payload = new JSONObject();
+        payload.put("lobbyCode", createLobbyResponse);
+        payload.put("userID", userID);
+        payload.put("userName", userName);
+        StompSession joinPlayerSession = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        joinPlayerSession.send(WEBSOCKET_TOPIC_JOIN_LOBBY, payload);
+        String joinLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("joinLobbyResponse:" + joinLobbyResponse);
+        assert joinLobbyResponse != null;
+
+
+        userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
+        userName = "TEST_USER_NAME";
+        payload = new JSONObject();
+        payload.put("lobbyCode", createLobbyResponse);
+        payload.put("userID", userID);
+        payload.put("userName", userName);
+        joinPlayerSession = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        joinPlayerSession.send(WEBSOCKET_TOPIC_JOIN_LOBBY, payload);
+        String joinLobbyResponse2 = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("joinLobbyResponse:" + joinLobbyResponse2);
+        assert joinLobbyResponse2 != null;
+
+        StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE); // why message in pipe when reaching this?
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
+        String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("startGameResponse:" + startGameResponse);
+        assert startGameResponse != null;
+
+        StompSession dialCardsSession = initStompSession(WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE);
+        dialCardsSession.send(WEBSOCKET_TOPIC_DEAL_NEW_ROUND, createLobbyResponse);
+        String dialCardsResponse = messages.poll(1, TimeUnit.SECONDS);
+        System.out.println("dialCardsResponse:" + dialCardsResponse);
+        assert dialCardsResponse != null;
+
+        return createLobbyResponse;
+    }
+     */
 }

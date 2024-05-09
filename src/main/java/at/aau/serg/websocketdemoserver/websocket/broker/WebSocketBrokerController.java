@@ -1,12 +1,19 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
+import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.gamelogic.Player;
+import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.LobbyCreationRequest;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class WebSocketBrokerController {
@@ -50,6 +57,13 @@ public class WebSocketBrokerController {
         lobbyManager.startGameForLobby(lobbyCode);
 
         return "Game started!";
+    }
+
+    @MessageMapping("/play_card")
+    @SendTo("/topic/card_played")
+    public CardPlayRequest playCard(CardPlayRequest playCardRequest) {
+        lobbyManager.cardPlayed(playCardRequest);
+        return playCardRequest;
     }
 
     //@MessageMapping("/TEST_PLAY_CARD")

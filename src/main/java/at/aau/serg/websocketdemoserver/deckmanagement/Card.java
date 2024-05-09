@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 public class Card {
-
     CardType cardType;
+    @Getter
     String color;
     @Getter
     Integer value;
