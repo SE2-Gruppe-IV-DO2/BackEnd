@@ -71,12 +71,6 @@ public class WebSocketBrokerController {
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
         return playCardRequest;
     }
-    @MessageMapping("/get_active_player")
-    @SendTo("/topic/get_active_player")
-    public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
-        return lobbyManager.getActivePlayerForLobby(lobbyCode);
-    }
-
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
         String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
