@@ -7,8 +7,10 @@ import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.LobbyCreationRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
@@ -17,6 +19,9 @@ import java.util.List;
 
 @Controller
 public class WebSocketBrokerController {
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     private LobbyManager lobbyManager = LobbyManager.getInstance();
 
     @MessageMapping("/hello")
@@ -59,23 +64,22 @@ public class WebSocketBrokerController {
         return "Game started!";
     }
 
-    @MessageMapping("/TEST_PLAY_CARD")
-    @SendTo("/topic/active_player_changed")
-    public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
-        lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
-        return lobbyManager.getActivePlayerForLobby(lobbyCode);
-    }
     @MessageMapping("/play_card")
     @SendTo("/topic/card_played")
-    public CardPlayRequest playCard(CardPlayRequest playCardRequest) {
+    public CardPlayRequest playCard(CardPlayRequest playCardRequest) throws Exception {
         lobbyManager.cardPlayed(playCardRequest);
+        endTurnForActivePlayer(playCardRequest.getLobbyCode());
         return playCardRequest;
     }
+    @MessageMapping("/get_active_player")
+    @SendTo("/topic/get_active_player")
+    public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
+        return lobbyManager.getActivePlayerForLobby(lobbyCode);
+    }
 
-    //@MessageMapping("/TEST_PLAY_CARD")
-    //@SendTo("/topic/active_player_changed")
-    //public String messageForChangeOfActivePlayer(String lobbyCode) throws Exception {
-    //    lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
-    //    return lobbyManager.getActivePlayerForLobby(lobbyCode);
-    //}
+    private void endTurnForActivePlayer(String lobbyCode) throws Exception {
+        lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+        String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
+        messagingTemplate.convertAndSend("/topic/active_player_changed", activePlayerId);
+    }
 }
