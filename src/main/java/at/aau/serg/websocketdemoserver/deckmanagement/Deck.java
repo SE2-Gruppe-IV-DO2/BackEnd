@@ -1,7 +1,6 @@
 package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
-import lombok.Data;
 import lombok.Getter;
 
 import java.util.*;
@@ -63,5 +62,23 @@ public class Deck {
 
     int size() {
         return deck.size();
+    }
+
+    public String evaluateWinningPlayerForRound(LinkedHashMap<String, Card> playedCards) {
+        String winningPlayerId = "";
+        String winningColor = "";
+        int currentHighestValue = -1;
+        for (String playerId : playedCards.keySet()){
+            Card current = playedCards.get(playerId);
+
+            winningColor = winningColor.isEmpty() ? current.cardType.getColor() : winningColor;
+
+            if (current.cardType.getColor().equals(winningColor) && current.value > currentHighestValue) {
+                currentHighestValue = current.value;
+                winningPlayerId = playerId;
+            }
+        }
+
+        return winningPlayerId;
     }
 }

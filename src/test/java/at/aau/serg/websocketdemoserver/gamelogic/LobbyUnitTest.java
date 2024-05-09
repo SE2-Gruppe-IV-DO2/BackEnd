@@ -156,4 +156,18 @@ public class LobbyUnitTest {
         field.setAccessible(true);
         field.set(object, value);
     }
+
+    @Test
+    void testGetPlayerByIDSuccess() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        assertEquals(p, lobby.getPlayerByID("player1"));
+    }
+
+    @Test
+    void testGetPLayerByIDFailure() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        assertNull(lobby.getPlayerByID("1"));
+    }
 }

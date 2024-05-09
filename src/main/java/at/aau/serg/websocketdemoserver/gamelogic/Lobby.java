@@ -1,5 +1,6 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,8 @@ public class Lobby {
     @Getter
     public Deck deck;
     @Getter
+    private List<Card> currentTrick;
+    @Getter
     private int indexOfActivePlayer = -1;
 
     public Lobby(String lobbyCode) {
@@ -28,6 +31,7 @@ public class Lobby {
         }
         this.deck = new Deck();
         this.lobbyCode = lobbyCode.trim();
+        this.currentTrick = new ArrayList<>();
     }
 
     public void addPlayer(Player player) {
@@ -50,6 +54,15 @@ public class Lobby {
         }
 
         return playerIDs;
+    }
+
+    public Player getPlayerByID(String playerID) {
+        for (Player player : players) {
+            if (player.getPlayerID().equals(playerID)) {
+                return player;
+            }
+        }
+        return null;
     }
 
     static boolean isValid(String code) {
