@@ -1,28 +1,15 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
-import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
-import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
-import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
-import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.LobbyCreationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class WebSocketBrokerController {
