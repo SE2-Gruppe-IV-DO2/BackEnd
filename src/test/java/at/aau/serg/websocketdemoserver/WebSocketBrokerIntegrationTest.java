@@ -214,21 +214,10 @@ class WebSocketBrokerIntegrationTest {
         setUpTwoPlayerJoinLobby(lobbyCode);
         setUpStartGame(lobbyCode);
 
-        JSONObject payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
-        StompSession dealNewRoundSession = initStompSession(WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE);
-        dealNewRoundSession.send(WEBSOCKET_TOPIC_DEAL_NEW_ROUND, payload);
-        String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("dealNewRoundResponse:" + dealNewRoundResponse);
-        assert dealNewRoundResponse != null;
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        HandCardsRequest handCardsRequest = objectMapper.readValue(dealNewRoundResponse, HandCardsRequest.class);
-        List<Card> cardList = handCardsRequest.getHandCards();
+        List<Card> cardList = setUpDealNewRound(lobbyCode);
         Card card = cardList.get(0);
 
-        payload = new JSONObject();
+        JSONObject payload = new JSONObject();
         payload.put("lobbyCode", lobbyCode);
         payload.put("userID", "TEST_USER_ID");
         payload.put("color", card.getColor());
@@ -237,8 +226,8 @@ class WebSocketBrokerIntegrationTest {
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("playCardResponse:" + playCardResponse);
         assert playCardResponse != null;
+        ObjectMapper objectMapper = new ObjectMapper();
         Card responseCard = objectMapper.readValue(playCardResponse, Card.class);
         Assertions.assertEquals(card.getCardType(), responseCard.getCardType());
         Assertions.assertEquals(card.getValue(), responseCard.getValue());
@@ -278,7 +267,6 @@ class WebSocketBrokerIntegrationTest {
         StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
         lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, jsonObject);
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("createLobbyResponse:" + createLobbyResponse);
         assert createLobbyResponse != null;
         return createLobbyResponse;
     }
@@ -293,7 +281,6 @@ class WebSocketBrokerIntegrationTest {
         StompSession joinPlayerSession = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
         joinPlayerSession.send(WEBSOCKET_TOPIC_JOIN_LOBBY, jsonObject);
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("createLobbyResponse:" + createLobbyResponse);
         assert createLobbyResponse != null;
 
         userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
@@ -304,7 +291,6 @@ class WebSocketBrokerIntegrationTest {
         jsonObject.put("userName", userName);
         joinPlayerSession.send(WEBSOCKET_TOPIC_JOIN_LOBBY, jsonObject);
         createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("createLobbyResponse:" + createLobbyResponse);
         assert createLobbyResponse != null;
     }
 
@@ -312,7 +298,6 @@ class WebSocketBrokerIntegrationTest {
         StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
         startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, lobbyCode);
         String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("startGameResponse:" + startGameResponse);
         assert startGameResponse != null;
     }
 
@@ -323,7 +308,6 @@ class WebSocketBrokerIntegrationTest {
         StompSession dealNewRoundSession = initStompSession(WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE);
         dealNewRoundSession.send(WEBSOCKET_TOPIC_DEAL_NEW_ROUND, payload);
         String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("dealNewRoundResponse:" + dealNewRoundResponse);
         assert dealNewRoundResponse != null;
 
         ObjectMapper objectMapper = new ObjectMapper();
