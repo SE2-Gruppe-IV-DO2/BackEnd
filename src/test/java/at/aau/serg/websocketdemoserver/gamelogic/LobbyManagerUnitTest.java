@@ -208,7 +208,7 @@ public class LobbyManagerUnitTest {
         cardPlayRequest.setPlayerID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
 
-        lobbyManager.cardPlayed(cardPlayRequest);
+        Card returnCard = lobbyManager.cardPlayed(cardPlayRequest);
 
         assertEquals(0, player.getCardsInHand().size());
         try {
@@ -216,6 +216,9 @@ public class LobbyManagerUnitTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        Assertions.assertEquals(card.getCardType(), returnCard.getCardType());
+        Assertions.assertEquals(card.getColor(), returnCard.getColor());
+        Assertions.assertEquals(card.getValue(), returnCard.getValue());
     }
 
     @Test

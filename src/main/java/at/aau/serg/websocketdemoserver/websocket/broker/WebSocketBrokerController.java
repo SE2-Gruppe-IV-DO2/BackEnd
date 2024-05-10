@@ -1,14 +1,18 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
+import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
-import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.LobbyCreationRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
@@ -18,6 +22,9 @@ import java.util.List;
 @Controller
 public class WebSocketBrokerController {
     private LobbyManager lobbyManager = LobbyManager.getInstance();
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MessageMapping("/hello")
     @SendTo("/topic/hello-response")
@@ -46,9 +53,11 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/deal_new_round")
     @SendTo("/topic/new-round-dealt")
-    public String dealNewRound(String lobbyCode) throws Exception{
-        lobbyManager.dealNewRound(lobbyCode);
-        return "";
+    public String dealNewRound(DealRoundRequest dealRoundRequest) throws Exception{
+        lobbyManager.dealNewRound(dealRoundRequest.getLobbyCode());
+        HandCardsRequest handCardsRequest = new HandCardsRequest();
+        handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
+        return objectMapper.writeValueAsString(handCardsRequest);
     }
 
     @MessageMapping("/start_game_for_lobby")
@@ -61,9 +70,13 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/play_card")
     @SendTo("/topic/card_played")
-    public CardPlayRequest playCard(CardPlayRequest playCardRequest) {
-        lobbyManager.cardPlayed(playCardRequest);
-        return playCardRequest;
+    public String playCard(CardPlayRequest playCardRequest) throws Exception {
+        Card card  = lobbyManager.cardPlayed(playCardRequest);
+        CardPlayedRequest cardPlayedRequest = new CardPlayedRequest();
+        cardPlayedRequest.setCardType(card.getCardType());
+        cardPlayedRequest.setColor(card.getColor());
+        cardPlayedRequest.setValue(card.getValue());
+        return objectMapper.writeValueAsString(cardPlayedRequest);
     }
 
     //@MessageMapping("/TEST_PLAY_CARD")
