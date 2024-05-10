@@ -51,6 +51,10 @@ public class LobbyManager {
         return new ArrayList<>(lobbies.values());
     }
 
+    public Lobby getLobbyByID(String lobbyID) {
+        return lobbies.get(lobbyID);
+    }
+
     public void startGameForLobby(String lobbyCode) {
         if (!lobbies.containsKey(lobbyCode))
             throw new IllegalArgumentException("Lobby with code '" + lobbyCode + "' does not exist!");
@@ -101,7 +105,7 @@ public class LobbyManager {
         lobby.getDeck().dealNewRound(lobby.getPlayers());
     }
 
-    public void cardPlayed(CardPlayRequest cardPlayRequest) {
+    public Card cardPlayed(CardPlayRequest cardPlayRequest) {
         Lobby targetLobby = lobbies.get(cardPlayRequest.getLobbyCode());
         if (targetLobby == null) {
             throw new IllegalArgumentException("Lobby not found");
@@ -115,5 +119,6 @@ public class LobbyManager {
             throw new IllegalArgumentException("Card not found in player's hand");
         }
         targetLobby.getCurrentTrick().add(c);
+        return c;
     }
 }

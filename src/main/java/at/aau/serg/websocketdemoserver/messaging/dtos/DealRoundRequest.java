@@ -4,13 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CardPlayRequest {
+public class DealRoundRequest {
     @JsonProperty("lobbyCode")
-    private String lobbyCode;
+    String lobbyCode;
     @JsonProperty("userID")
-    private String playerID;
-    @JsonProperty("color")
-    private String color;
-    @JsonProperty("value")
-    private Integer value;
+    String userID;
 }
