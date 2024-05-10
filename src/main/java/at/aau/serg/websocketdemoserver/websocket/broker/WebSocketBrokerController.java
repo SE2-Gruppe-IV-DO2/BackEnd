@@ -81,6 +81,7 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setCardType(card.getCardType());
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(card.getValue());
+
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
         return objectMapper.writeValueAsString(cardPlayedRequest);
