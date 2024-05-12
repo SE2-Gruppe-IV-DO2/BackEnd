@@ -1,11 +1,9 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
-import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -56,6 +54,8 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_PLAY_CARD = "/app/play_card";
     private final String WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE = "/topic/card_played";
+
+    private final String WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE = "/topic/active_player_changed";
 
     /**
      * Queue of messages from the server.
@@ -185,30 +185,6 @@ class WebSocketBrokerIntegrationTest {
     }
 
     @Test
-    public void testWebSocket_GetPlayerTurnUpdate() throws Exception {
-        // create a new lobby and start the game
-        String userID = "TEST_USER_ID";
-        String userName = "TEST_USER_NAME";
-
-        JSONObject payload = new JSONObject();
-        payload.put("userID", userID);
-        payload.put("userName", userName);
-
-        StompSession lobbyCreationSession = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
-        lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
-
-        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("createLobbyResponse:" + createLobbyResponse);
-
-        assert createLobbyResponse != null;
-        StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
-        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
-        String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
-
-        //TODO: Add tests if the message for the active player came
-    }
-
-    @Test
     void testPlayCardEndpoint() throws Exception {
         String lobbyCode = setUpLobby();
         setUpTwoPlayerJoinLobby(lobbyCode);
@@ -232,6 +208,29 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertEquals(card.getCardType(), responseCard.getCardType());
         Assertions.assertEquals(card.getValue(), responseCard.getValue());
         Assertions.assertEquals(card.getColor(), responseCard.getColor());
+    }
+
+    @Test
+    void testActivePlayerChangedEndpoint() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        List<Card> cardList = setUpDealNewRound(lobbyCode);
+        Card card = cardList.get(0);
+
+        JSONObject payload = new JSONObject();
+        payload.put("lobbyCode", lobbyCode);
+        payload.put("userID", "TEST_USER_ID");
+        payload.put("color", card.getColor());
+        payload.put("value", card.getValue());
+
+        StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        messages.poll(1, TimeUnit.SECONDS);
+        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        assert playerChangedResponse != null;
     }
 
     /**

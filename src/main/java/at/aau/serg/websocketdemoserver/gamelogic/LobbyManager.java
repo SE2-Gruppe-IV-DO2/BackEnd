@@ -121,4 +121,15 @@ public class LobbyManager {
         targetLobby.getCurrentTrick().add(c);
         return c;
     }
+
+    public void endCurrentPlayersTurnForLobby(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        lobby.endCurrentPlayersTurn();
+    }
+
+    public String getActivePlayerForLobby(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        Player player = lobby.getActivePlayer();
+        return player == null ? "" : player.getPlayerID();
+    }
 }

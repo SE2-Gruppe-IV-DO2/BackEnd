@@ -268,4 +268,16 @@ public class LobbyManagerUnitTest {
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
     }
+
+    @Test
+    public void testEndCurrentPlayersTurnForLobby() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        Player player1 = new Player("playerID1", "Player1");
+        Player player2 = new Player("playerID2", "Player2");
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+
+        lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
+    }
 }
