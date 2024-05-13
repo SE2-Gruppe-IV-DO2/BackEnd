@@ -178,7 +178,10 @@ class WebSocketBrokerIntegrationTest {
 
         assert createLobbyResponse != null;
         StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
-        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, createLobbyResponse);
+
+        JSONObject startLobbyRequest = new JSONObject();
+        startLobbyRequest.put("lobbyCode", createLobbyResponse);
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, startLobbyRequest);
         String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
 
         assertThat(startGameResponse).isNotEmpty();
@@ -295,7 +298,10 @@ class WebSocketBrokerIntegrationTest {
 
     public void setUpStartGame(String lobbyCode) throws Exception {
         StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE);
-        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, lobbyCode);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("lobbyCode", lobbyCode);
+        startGameSession.send(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY, jsonObject);
         String startGameResponse = messages.poll(1, TimeUnit.SECONDS);
         assert startGameResponse != null;
     }

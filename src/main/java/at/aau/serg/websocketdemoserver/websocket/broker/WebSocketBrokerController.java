@@ -54,8 +54,8 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/start_game_for_lobby")
     @SendTo("/topic/game_for_lobby_started")
-    public String startGameForLobby(String lobbyCode) {
-        lobbyManager.startGameForLobby(lobbyCode);
+    public String startGameForLobby(StartGameRequest startGameRequest) {
+        lobbyManager.startGameForLobby(startGameRequest.getLobbyCode());
 
         return "Game started!";
     }
