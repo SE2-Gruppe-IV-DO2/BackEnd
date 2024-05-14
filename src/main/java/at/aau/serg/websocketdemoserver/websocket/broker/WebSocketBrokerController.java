@@ -50,6 +50,7 @@ public class WebSocketBrokerController {
         HandCardsRequest handCardsRequest = new HandCardsRequest();
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
 
+        //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
 
         return objectMapper.writeValueAsString(handCardsRequest);
