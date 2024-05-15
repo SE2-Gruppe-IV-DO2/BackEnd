@@ -49,6 +49,10 @@ public class WebSocketBrokerController {
         lobbyManager.dealNewRound(dealRoundRequest.getLobbyCode());
         HandCardsRequest handCardsRequest = new HandCardsRequest();
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
+
+        //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
+        sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
+
         return objectMapper.writeValueAsString(handCardsRequest);
     }
 
@@ -75,6 +79,10 @@ public class WebSocketBrokerController {
     }
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
+        sendActivePlayerMessage(lobbyCode);
+    }
+
+    private void sendActivePlayerMessage(String lobbyCode) throws Exception {
         String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
         messagingTemplate.convertAndSend("/topic/active_player_changed", activePlayerId);
     }
