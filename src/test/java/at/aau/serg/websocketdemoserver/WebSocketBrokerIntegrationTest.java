@@ -45,6 +45,7 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_JOIN_LOBBY = "/app/join_lobby";
     private final String WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE = "/topic/lobby-joined";
+    private final String WEBSOCKET_TOPIC_PLAYER_JOINED_LOBBY_RESPONSE = "/topic/player_joined_lobby";
 
     private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY = "/app/start_game_for_lobby";
     private final String WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE = "/topic/game_for_lobby_started";
@@ -142,6 +143,58 @@ class WebSocketBrokerIntegrationTest {
         assertThat(joinLobbyResponse).isNotEmpty();
         assertEquals(joinLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
     }
+
+    @Test
+    public void testPlayerJoinedLobby() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+
+        // send a message to the server
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME";
+
+        JSONObject payload = new JSONObject();
+        payload.put("userID", userID);
+        payload.put("userName", userName);
+
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(createLobbyResponse).isNotEmpty();
+        assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+
+        StompSession sessionJoin = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_PLAYER_JOINED_LOBBY_RESPONSE);
+
+        String userIDJoin = "TEST_USER_ID_2";
+        String userNameJoin = "TEST_USER_NAME_2";
+
+        JSONObject joinLobbyPayload = new JSONObject();
+        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
+        joinLobbyPayload.put("userID", userIDJoin);
+        joinLobbyPayload.put("userName", userNameJoin);
+
+        sessionJoin.send(WEBSOCKET_TOPIC_JOIN_LOBBY, joinLobbyPayload);
+
+        String firstResponse = messages.poll(1, TimeUnit.SECONDS);
+        String secondResponse = messages.poll(1, TimeUnit.SECONDS);
+        String joinLobbyResponse = "";
+        String playerJoinedResponse = "";
+
+        if (firstResponse.length() == LobbyManager.LOBBY_CODE_LENGTH) {
+            joinLobbyResponse = firstResponse;
+            playerJoinedResponse = secondResponse;
+        }
+        else {
+            joinLobbyResponse = secondResponse;
+            playerJoinedResponse = firstResponse;
+        }
+
+        assertThat(joinLobbyResponse).isNotEmpty();
+        assertEquals(joinLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+
+        assertEquals(playerJoinedResponse, userNameJoin);
+    }
+
 
     @Test
     public void testWebSocketDealNewRound() throws Exception {

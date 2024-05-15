@@ -39,7 +39,7 @@ public class WebSocketBrokerController {
     public String joinLobby(JoinLobbyRequest joinLobbyRequest) {
         // Join an existing lobby
         lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
-
+        sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName());
         return joinLobbyRequest.getLobbyCode();
     }
 
@@ -85,5 +85,9 @@ public class WebSocketBrokerController {
     private void sendActivePlayerMessage(String lobbyCode) throws Exception {
         String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
         messagingTemplate.convertAndSend("/topic/active_player_changed", activePlayerId);
+    }
+
+    private void sendPlayerJoinedLobbyMessage(String playerName) {
+        messagingTemplate.convertAndSend("/topic/player_joined_lobby", playerName);
     }
 }
