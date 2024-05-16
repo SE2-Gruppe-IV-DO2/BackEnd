@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
@@ -49,7 +50,8 @@ public class WebSocketBrokerController {
         lobbyManager.dealNewRound(dealRoundRequest.getLobbyCode());
         HandCardsRequest handCardsRequest = new HandCardsRequest();
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
-
+        System.out.println(handCardsRequest.toString());
+        System.out.println(dealRoundRequest.getUserID());
         //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
 
@@ -65,16 +67,17 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/play_card")
-    @SendTo("/topic/card_played")
     public String playCard(CardPlayRequest playCardRequest) throws Exception {
         Card card  = lobbyManager.cardPlayed(playCardRequest);
         CardPlayedRequest cardPlayedRequest = new CardPlayedRequest();
         cardPlayedRequest.setCardType(card.getCardType());
         cardPlayedRequest.setColor(card.getColor());
+        messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
         cardPlayedRequest.setValue(card.getValue());
 
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
+        System.out.println(cardPlayedRequest.toString());
         return objectMapper.writeValueAsString(cardPlayedRequest);
     }
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
