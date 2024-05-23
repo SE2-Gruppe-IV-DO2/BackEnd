@@ -11,5 +11,5 @@ public class CardPlayedRequest {
     @JsonProperty("color")
     String color;
     @JsonProperty("value")
-    Integer value;
+    String value;
 }

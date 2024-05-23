@@ -114,7 +114,7 @@ public class LobbyManager {
         if (player == null) {
             throw new IllegalArgumentException("Player not found in the lobby: " + cardPlayRequest.getUserID());
         }
-        Card c = player.playCardForPlayer(cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        Card c = player.playCardForPlayer(cardPlayRequest.getColor(), Integer.valueOf(cardPlayRequest.getValue()));
         if (c == null) {
             throw new IllegalArgumentException("Card not found in player's hand");
         }
