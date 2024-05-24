@@ -203,9 +203,9 @@ public class LobbyManagerUnitTest {
         Card card = new Card(CardType.BLUE, 3);
         player.getCardsInHand().add(card);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
 
         Card returnCard = lobbyManager.cardPlayed(cardPlayRequest);
@@ -224,9 +224,9 @@ public class LobbyManagerUnitTest {
     @Test
     void testCardPlayedFailureLobby() {
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode("123");
-        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
@@ -241,9 +241,9 @@ public class LobbyManagerUnitTest {
             throw new RuntimeException(e);
         }
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
 
 
@@ -261,9 +261,9 @@ public class LobbyManagerUnitTest {
         Player player = new Player("123", "John");
         lobbyManager.addPlayerToLobby(lobbyCode, player);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
