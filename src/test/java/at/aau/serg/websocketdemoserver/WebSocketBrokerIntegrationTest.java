@@ -2,6 +2,7 @@ package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,8 @@ class WebSocketBrokerIntegrationTest {
 
     @LocalServerPort
     private int port;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String WEBSOCKET_URI = "ws://localhost:%d/websocket-example-broker";
     private final String WEBSOCKET_TOPIC_HELLO_RESPONSE = "/topic/hello-response";
@@ -245,7 +248,6 @@ class WebSocketBrokerIntegrationTest {
         String lobbyCode = setUpLobby();
         setUpTwoPlayerJoinLobby(lobbyCode);
         setUpStartGame(lobbyCode);
-
         List<Card> cardList = setUpDealNewRound(lobbyCode);
         Card card = cardList.get(0);
 
@@ -253,19 +255,12 @@ class WebSocketBrokerIntegrationTest {
         payload.put("lobbyCode", lobbyCode);
         payload.put("userID", "TEST_USER_ID");
         payload.put("color", card.getColor());
-        payload.put("value", card.getValue());
+        payload.put("value", String.valueOf(card.getValue()));
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playCardResponse);
-        /*
-        ObjectMapper objectMapper = new ObjectMapper();
-        Card responseCard = objectMapper.readValue(playCardResponse, Card.class);
-        Assertions.assertEquals(card.getCardType(), responseCard.getCardType());
-        Assertions.assertEquals(card.getValue(), responseCard.getValue());
-        Assertions.assertEquals(card.getColor(), responseCard.getColor());
-        */
     }
 
     @Test

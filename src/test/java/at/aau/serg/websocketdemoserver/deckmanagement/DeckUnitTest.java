@@ -33,11 +33,9 @@ public class DeckUnitTest {
         deck.dealNewRound(playerList);
         assertEquals(15, playerList.get(0).getCardsInHand().size());
 
-        //playerList.add(new Player("playerId4", "Player4"));
         deck.dealNewRound(playerList);
         assertEquals(15, playerList.get(1).getCardsInHand().size());
 
-        //playerList.add(new Player("playerId5", "Player5"));
         deck.dealNewRound(playerList);
         assertEquals(15, playerList.get(2).getCardsInHand().size());
     }
@@ -110,7 +108,7 @@ public class DeckUnitTest {
     }
 
     @Test
-    public void test_evaluateTrick_allGoldenSickleAndMistletoe(){
+    void test_evaluateTrick_allGoldenSickleAndMistletoe(){
         LinkedHashMap<String, Card> playedCards = new LinkedHashMap<>();
         playedCards.put("playerID1", new Card(CardType.GOLDEN_SICKLE, 0));
         playedCards.put("playerID2", new Card(CardType.GOLDEN_SICKLE, 0));
