@@ -2,7 +2,6 @@ package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
-import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -365,7 +364,6 @@ class WebSocketBrokerIntegrationTest {
         String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
         assert dealNewRoundResponse != null;
 
-        ObjectMapper objectMapper = new ObjectMapper();
         HandCardsRequest handCardsRequest = objectMapper.readValue(dealNewRoundResponse, HandCardsRequest.class);
         return handCardsRequest.getHandCards();
     }
