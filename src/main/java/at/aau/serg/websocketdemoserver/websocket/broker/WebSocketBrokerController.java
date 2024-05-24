@@ -49,6 +49,7 @@ public class WebSocketBrokerController {
     public String dealNewRound(DealRoundRequest dealRoundRequest) throws Exception{
         lobbyManager.dealNewRound(dealRoundRequest.getLobbyCode());
         HandCardsRequest handCardsRequest = new HandCardsRequest();
+        handCardsRequest.setPlayerID(dealRoundRequest.getUserID());
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
         //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
