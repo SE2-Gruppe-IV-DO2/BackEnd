@@ -66,16 +66,15 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/play_card")
-    public String playCard(CardPlayRequest playCardRequest) throws Exception {
+    public void playCard(CardPlayRequest playCardRequest) throws Exception {
         Card card  = lobbyManager.cardPlayed(playCardRequest);
         CardPlayedRequest cardPlayedRequest = new CardPlayedRequest();
         cardPlayedRequest.setCardType(card.getCardType());
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
-        messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
-        return objectMapper.writeValueAsString(cardPlayedRequest);
+        messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
     }
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
