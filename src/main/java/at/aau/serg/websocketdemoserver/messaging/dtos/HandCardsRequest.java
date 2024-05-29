@@ -8,6 +8,8 @@ import java.util.List;
 
 @Data
 public class HandCardsRequest {
+    @JsonProperty("playerID")
+    String playerID;
     @JsonProperty("handCards")
     List<Card> handCards;
 }

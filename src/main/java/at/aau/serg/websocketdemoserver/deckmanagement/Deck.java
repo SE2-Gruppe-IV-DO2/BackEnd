@@ -10,7 +10,7 @@ import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 public class Deck {
 
     static final int MAX_CARD_VALUE = 12;
-
+    boolean roundDealt = false;
     @Getter
     List<Card> deck;
 
@@ -33,14 +33,17 @@ public class Deck {
     }
 
     public void dealNewRound(List<Player> players) {
-        int cardsPerPlayer = (18 - players.size());
-        List<Card> deckInPlay = getShuffledSubsetWithAddedGaia(cardsPerPlayer * players.size());
+        if (!roundDealt) {
+            int cardsPerPlayer = (18 - players.size());
+            List<Card> deckInPlay = getShuffledSubsetWithAddedGaia(cardsPerPlayer * players.size());
 
-        for (Player player : players) {
-            player.setCardsInHand(new ArrayList<>());
-            for (int i = 0; i < cardsPerPlayer; i++) {
-                player.getCardsInHand().add(deckInPlay.remove(0));
+            for (Player player : players) {
+                player.setCardsInHand(new ArrayList<>());
+                for (int i = 0; i < cardsPerPlayer; i++) {
+                    player.getCardsInHand().add(deckInPlay.remove(0));
+                }
             }
+            roundDealt = true;
         }
     }
 
