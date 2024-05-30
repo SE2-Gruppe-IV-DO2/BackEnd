@@ -132,4 +132,9 @@ public class LobbyManager {
         Player player = lobby.getActivePlayer();
         return player == null ? "" : player.getPlayerID();
     }
+
+    public void setGaiaPlayerAsStartPlayer(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        lobby.setGaiaHolderAsStartPlayer();
+    }
 }

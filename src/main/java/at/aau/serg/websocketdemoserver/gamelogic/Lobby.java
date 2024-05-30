@@ -93,4 +93,18 @@ public class Lobby {
         if (indexOfActivePlayer >= players.size())
             indexOfActivePlayer = 0;
     }
+
+    public void setGaiaHolderAsStartPlayer() {
+        List<Player> players = getPlayers();
+        boolean foundGaiaHolder = false;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).hasGaiaCard()) {
+                foundGaiaHolder = true;
+                indexOfActivePlayer = i;
+            }
+        }
+
+        if (!foundGaiaHolder)
+            throw new IllegalStateException("No player has the Gaia Card!");
+    }
 }

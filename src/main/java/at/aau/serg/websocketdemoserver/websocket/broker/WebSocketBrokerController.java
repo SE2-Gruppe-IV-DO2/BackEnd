@@ -2,6 +2,7 @@ package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,8 @@ public class WebSocketBrokerController {
         HandCardsRequest handCardsRequest = new HandCardsRequest();
         handCardsRequest.setPlayerID(dealRoundRequest.getUserID());
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
-        //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
+
+        lobbyManager.setGaiaPlayerAsStartPlayer(dealRoundRequest.getLobbyCode());
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
 
         return objectMapper.writeValueAsString(handCardsRequest);
