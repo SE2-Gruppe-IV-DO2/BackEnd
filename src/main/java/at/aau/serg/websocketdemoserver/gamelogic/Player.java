@@ -35,8 +35,8 @@ public class Player {
     }
 
     public boolean hasGaiaCard() {
-        for (int i = 0; i < cardsInHand.size(); i++) {
-            if (cardsInHand.get(i).getCardType().equals(CardType.GAIA))
+        for (Card card : cardsInHand) {
+            if (card.getCardType().equals(CardType.GAIA))
                 return true;
         }
         return false;
