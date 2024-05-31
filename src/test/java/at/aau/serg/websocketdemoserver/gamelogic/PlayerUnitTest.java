@@ -1,8 +1,12 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,5 +82,87 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card3);
 
         assertFalse(player.hasGaiaCard());
+    }
+
+    @Test
+    void testAddSingleValueCardsTrick() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 2);
+        List<Card> trickCards = List.of(card1, card2);
+
+        boolean isDead = player.addClaimedTrick(trickCards);
+
+        assertFalse(isDead);
+        assertEquals(5, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+    }
+
+    @Test
+    void testAddMultipleValueCardsTrick() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.RED, 7);
+        Card card3 = new Card(CardType.RED, 3);
+        Card card4 = new Card(CardType.RED, 4);
+
+        Card card5 = new Card(CardType.BLUE, 2);
+        Card card6 = new Card(CardType.BLUE, 4);
+
+        List<Card> trickCards = List.of(card1, card2, card3, card4, card5, card6);
+
+        boolean isDead = player.addClaimedTrick(trickCards);
+
+        assertFalse(isDead);
+        assertEquals(3, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+    }
+
+    @Test
+    void testUpdateClaimedTrickForCardType() {
+        Player player = new Player("123", "John");
+        player.updateClaimedTrickForCardType(CardType.RED, 5);
+
+        assertEquals(5, player.getClaimedTricks().get(CardType.RED));
+    }
+
+    @Test
+    void testIsPlayerDead() {
+        Player player = new Player("123", "John");
+        player.updateClaimedTrickForCardType(CardType.GREEN, 1);
+        player.updateClaimedTrickForCardType(CardType.RED, 1);
+        player.updateClaimedTrickForCardType(CardType.PURPLE, 1);
+        player.updateClaimedTrickForCardType(CardType.BLUE, 1);
+        player.updateClaimedTrickForCardType(CardType.YELLOW, 1);
+
+        assertTrue(player.isPlayerDead());
+    }
+
+    @Test
+    void testGetHighestValueClaimedTrickType() {
+        Player player = new Player("123", "John");
+        player.updateClaimedTrickForCardType(CardType.RED, 5);
+        player.updateClaimedTrickForCardType(CardType.BLUE, 3);
+        player.updateClaimedTrickForCardType(GREEN, 3);
+
+        assertEquals(CardType.RED, player.getHighestValueClaimedTrickType());
+    }
+
+    @Test
+    void testAddMultipleTricks() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 2);
+        List<Card> trickCards = List.of(card1, card2);
+        player.addClaimedTrick(trickCards);
+
+        Card card3 = new Card(CardType.RED, 3);
+        Card card4 = new Card(CardType.BLUE, 6);
+        List<Card> trickCards2 = List.of(card3, card4);
+        boolean isDead = player.addClaimedTrick(trickCards2);
+
+        assertFalse(isDead);
+        assertEquals(3, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(6, player.getClaimedTricks().get(CardType.BLUE));
     }
 }
