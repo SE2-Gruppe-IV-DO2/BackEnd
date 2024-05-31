@@ -139,6 +139,19 @@ class PlayerUnitTest {
     }
 
     @Test
+    void testIfPlayerIsDeadWithSickle() {
+        Player player = new Player("123", "John");
+        player.updateClaimedTrickForCardType(CardType.GREEN, 1);
+        player.updateClaimedTrickForCardType(CardType.RED, 1);
+        player.updateClaimedTrickForCardType(CardType.PURPLE, 1);
+        player.updateClaimedTrickForCardType(CardType.BLUE, 1);
+        player.updateClaimedTrickForCardType(CardType.YELLOW, 1);
+        player.updateClaimedTrickForCardType(GOLDEN_SICKLE, 0);
+
+        assertTrue(player.isPlayerDead());
+    }
+
+    @Test
     void testGetHighestValueClaimedTrickType() {
         Player player = new Player("123", "John");
         player.updateClaimedTrickForCardType(CardType.RED, 5);
@@ -165,4 +178,38 @@ class PlayerUnitTest {
         assertEquals(3, player.getClaimedTricks().get(CardType.RED));
         assertEquals(6, player.getClaimedTricks().get(CardType.BLUE));
     }
+
+    @Test
+    void testAddSickleToTrick() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 2);
+        Card sickleCard = new Card(GOLDEN_SICKLE, 0);
+
+        List<Card> trickCards = List.of(card1, card2, sickleCard);
+        player.addClaimedTrick(trickCards);
+
+        assertEquals(0, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+    }
+
+    @Test
+    void testAddMultipleSickleToTrick() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 2);
+        Card card3 = new Card(GREEN, 3);
+        Card card4 = new Card(YELLOW, 4);
+        Card sickleCard = new Card(GOLDEN_SICKLE, 0);
+        Card sickleCard2 = new Card(GOLDEN_SICKLE, 0);
+
+        List<Card> trickCards = List.of(card1, card2, card3, card4, sickleCard, sickleCard2);
+        player.addClaimedTrick(trickCards);
+
+        assertEquals(0, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(0, player.getClaimedTricks().get(YELLOW));
+        assertEquals(3, player.getClaimedTricks().get(GREEN));
+        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+    }
 }
+
