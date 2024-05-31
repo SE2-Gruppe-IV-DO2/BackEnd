@@ -107,4 +107,8 @@ public class Lobby {
         if (!foundGaiaHolder)
             throw new IllegalStateException("No player has the Gaia Card!");
     }
+
+    public boolean isCurrentTrickDone() {
+        return (currentTrick.size() == players.size());
+    }
 }

@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,6 +74,14 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
+
+        // Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
+        // if (currentLobby.isCurrentTrickDone()) {
+            // Check who won the trick
+            // add trick to players claimedTricks:
+            // playerThatHasWon.addClaimedTrick()
+            // clear currentTrick
+        // }
 
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
     }
