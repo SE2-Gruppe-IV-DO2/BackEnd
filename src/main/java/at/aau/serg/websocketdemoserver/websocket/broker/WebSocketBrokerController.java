@@ -1,7 +1,6 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
-import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
