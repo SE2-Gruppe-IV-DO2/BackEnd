@@ -16,7 +16,7 @@ public class Player {
     @Setter
     List<Card> cardsInHand = new ArrayList<>();
 
-    HashMap<CardType, Integer> claimedTricks = new HashMap<CardType, Integer>();
+    HashMap<CardType, Integer> claimedTricks = new HashMap<>();
     boolean cheatedDuringLastTrick = false;
 
     public Player(String playerID, String playerName) {
@@ -48,8 +48,10 @@ public class Player {
         // Player played a color that does not match the color force (could be legal if no other choice)
         if (dutyCardColor != null && !dutyCardColor.equals(playedColor)) {
             for (Card handCard : cardsInHand) {
-                if (handCard.getColor().equals(dutyCardColor))
+                if (handCard.getColor().equals(dutyCardColor)) {
                     cheatedDuringLastTrick = true;
+                    break;
+                }
             }
         }
         else
@@ -65,7 +67,7 @@ public class Player {
     }
 
     public boolean addClaimedTrick(List<Card> trickCards) {
-        HashMap<CardType, Integer> lowestCardsInTrick = new HashMap<CardType, Integer>();
+        HashMap<CardType, Integer> lowestCardsInTrick = new HashMap<>();
         int goldenSickleCounter = 0;
 
         for (Card trickCard : trickCards) {
