@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
@@ -51,7 +50,8 @@ public class WebSocketBrokerController {
         HandCardsRequest handCardsRequest = new HandCardsRequest();
         handCardsRequest.setPlayerID(dealRoundRequest.getUserID());
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
-        //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
+
+        lobbyManager.setGaiaPlayerAsStartPlayer(dealRoundRequest.getLobbyCode());
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
 
         return objectMapper.writeValueAsString(handCardsRequest);

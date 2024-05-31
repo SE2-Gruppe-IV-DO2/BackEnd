@@ -4,7 +4,7 @@ import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class PlayerUnitTest {
@@ -52,6 +52,31 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card2);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", 5));
+    }
 
+    @Test()
+    void testPlayerHasGaia() {
+        Player player = new Player("123", "John");
+        Card gaiaCard = new Card(GAIA, 0);
+        Card card2 = new Card(BLUE, 3);
+        Card card3 = new Card(GREEN, 3);
+
+        player.getCardsInHand().add(card2);
+        player.getCardsInHand().add(gaiaCard);
+        player.getCardsInHand().add(card3);
+
+        assertTrue(player.hasGaiaCard());
+    }
+
+    @Test()
+    void testPlayerHasNoGaia() {
+        Player player = new Player("123", "John");
+        Card card2 = new Card(BLUE, 3);
+        Card card3 = new Card(GREEN, 3);
+
+        player.getCardsInHand().add(card2);
+        player.getCardsInHand().add(card3);
+
+        assertFalse(player.hasGaiaCard());
     }
 }

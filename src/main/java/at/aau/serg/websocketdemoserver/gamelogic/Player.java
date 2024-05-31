@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,5 +32,13 @@ public class Player {
             }
         }
         throw new IllegalArgumentException("Card not found in player's hand");
+    }
+
+    public boolean hasGaiaCard() {
+        for (Card card : cardsInHand) {
+            if (card.getCardType().equals(CardType.GAIA))
+                return true;
+        }
+        return false;
     }
 }
