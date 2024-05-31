@@ -17,6 +17,7 @@ public class Player {
     List<Card> cardsInHand = new ArrayList<>();
 
     HashMap<CardType, Integer> claimedTricks = new HashMap<CardType, Integer>();
+    boolean cheatedDuringLastTrick = false;
 
     public Player(String playerID, String playerName) {
         this.playerID = playerID;
@@ -32,6 +33,27 @@ public class Player {
             }
         }
         throw new IllegalArgumentException("Card not found in player's hand");
+    }
+
+    public void updateCheatAttempt(List<Card> trickCards, String playedColor) {
+        String dutyCardColor = null;
+        for (Card trickCard : trickCards) {
+            if (trickCard.getCardType() != CardType.MISTLETOE
+                    && trickCard.getCardType() != CardType.GOLDEN_SICKLE) {
+                if (dutyCardColor == null)
+                    dutyCardColor = trickCard.getColor();
+            }
+        }
+
+        // Player played a color that does not match the color force (could be legal if no other choice)
+        if (dutyCardColor != null && !dutyCardColor.equals(playedColor)) {
+            for (Card handCard : cardsInHand) {
+                if (handCard.getColor().equals(dutyCardColor))
+                    cheatedDuringLastTrick = true;
+            }
+        }
+        else
+            cheatedDuringLastTrick = false;
     }
 
     public boolean hasGaiaCard() {
