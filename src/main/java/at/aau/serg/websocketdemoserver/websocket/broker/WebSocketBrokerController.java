@@ -74,6 +74,14 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
+        // Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
+        // if (currentLobby.isCurrentTrickDone()) {
+            // Check who won the trick
+            // add trick to players claimedTricks:
+            // playerThatHasWon.addClaimedTrick()
+            // clear currentTrick
+        // }
+
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
     }
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
