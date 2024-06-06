@@ -351,9 +351,9 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, player2);
         lobbyManager.addPlayerToLobby(lobbyCode, player3);
 
-        player1.playCardForPlayer("green", 2);
-        player2.playCardForPlayer("green", 5);
-        player3.playCardForPlayer("red", 2);
+        player1.playCardForPlayer("green", "green", 2);
+        player2.playCardForPlayer("green", "green", 5);
+        player3.playCardForPlayer("red", "red", 2);
 
         assertFalse(player1.cheatedDuringLastTrick);
         assertFalse(player2.cheatedDuringLastTrick);

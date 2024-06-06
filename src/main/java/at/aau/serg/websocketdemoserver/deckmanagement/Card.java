@@ -24,7 +24,7 @@ public class Card {
         this.cardType = cardType;
         this.color = cardType.getColor();
         this.value = value;
-        this.imgPath = cardType.getName() + this.value + ".png";
+        this.createImagePath();
     }
 
     public Card(Card card) {
@@ -32,10 +32,19 @@ public class Card {
         this.color = card.color;
         this.value = card.value;
         this.imgPath = card.imgPath;
+        this.createImagePath();
     }
 
     @Override
     public String toString() {
         return color + " " + value;
+    }
+
+
+    public void createImagePath() {
+        this.imgPath =  "card_" + cardType.getName() + this.value;
+        if (this.cardType.getName().equals("gaia") && !this.color.isEmpty()) {
+            this.imgPath += "_" + color;
+        }
     }
 }

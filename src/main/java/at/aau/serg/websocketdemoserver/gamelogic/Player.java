@@ -24,11 +24,17 @@ public class Player {
         this.playerName = playerName;
     }
 
-    public Card playCardForPlayer(String color, Integer value) {
+    public Card playCardForPlayer(String name, String color, Integer value) {
         for (Iterator<Card> iterator = cardsInHand.iterator(); iterator.hasNext();) {
             Card card = iterator.next();
             if (color.equals(card.getColor()) && value.equals(card.getValue())) {
                 iterator.remove();
+                return card;
+            }
+            // case of gaia, mistletoe, golden sickle
+            if (name.equals(card.getCardType().getName()) && value.equals(card.getValue())){
+                iterator.remove();
+                card.setColor(color);
                 return card;
             }
         }

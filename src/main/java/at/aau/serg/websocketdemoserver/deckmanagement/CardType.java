@@ -18,7 +18,7 @@ public enum CardType {
         this.color = color;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 

@@ -41,7 +41,7 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Card playedCard = player.playCardForPlayer("red", 5);
+        Card playedCard = player.playCardForPlayer("red", "red", 5);
 
         assertEquals(card1, playedCard);
         assertEquals(1, player.getCardsInHand().size());
@@ -55,7 +55,7 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", 5));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", "green", 5));
     }
 
     @Test()
