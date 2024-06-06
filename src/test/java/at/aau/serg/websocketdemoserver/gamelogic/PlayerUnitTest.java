@@ -85,6 +85,20 @@ class PlayerUnitTest {
     }
 
     @Test
+    void testPlayGaiaForPlayerFound() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(RED, 5);
+        Card card2 = new Card(GAIA, 0);
+        player.getCardsInHand().add(card1);
+        player.getCardsInHand().add(card2);
+
+        Card playedCard = player.playCardForPlayer("gaia", "red", 0);
+
+        assertEquals(card2, playedCard);
+        assertEquals(1, player.getCardsInHand().size());
+    }
+
+    @Test
     void testAddSingleValueCardsTrick() {
         Player player = new Player("123", "John");
         Card card1 = new Card(CardType.RED, 5);
