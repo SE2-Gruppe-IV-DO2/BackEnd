@@ -93,4 +93,13 @@ public class Lobby {
         if (indexOfActivePlayer >= players.size())
             indexOfActivePlayer = 0;
     }
+
+    public boolean isRoundFinished() {
+        for (Player player : players) {
+            if (!player.getCardsInHand().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
