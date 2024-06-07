@@ -9,6 +9,8 @@ public class CardPlayRequest {
     private String lobbyCode;
     @JsonProperty("userID")
     private String userID;
+    @JsonProperty("name")
+    private String name;
     @JsonProperty("color")
     private String color;
     @JsonProperty("value")

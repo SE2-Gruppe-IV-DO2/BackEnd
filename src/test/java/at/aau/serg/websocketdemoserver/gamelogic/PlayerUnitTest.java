@@ -41,7 +41,7 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Card playedCard = player.playCardForPlayer("red", 5);
+        Card playedCard = player.playCardForPlayer("red", "red", 5);
 
         assertEquals(card1, playedCard);
         assertEquals(1, player.getCardsInHand().size());
@@ -55,7 +55,7 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", 5));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", "green", 5));
     }
 
     @Test()
@@ -82,6 +82,20 @@ class PlayerUnitTest {
         player.getCardsInHand().add(card3);
 
         assertFalse(player.hasGaiaCard());
+    }
+
+    @Test
+    void testPlayGaiaForPlayerFound() {
+        Player player = new Player("123", "John");
+        Card card1 = new Card(RED, 5);
+        Card card2 = new Card(GAIA, 0);
+        player.getCardsInHand().add(card1);
+        player.getCardsInHand().add(card2);
+
+        Card playedCard = player.playCardForPlayer("gaia", "red", 0);
+
+        assertEquals(card2, playedCard);
+        assertEquals(1, player.getCardsInHand().size());
     }
 
     @Test
