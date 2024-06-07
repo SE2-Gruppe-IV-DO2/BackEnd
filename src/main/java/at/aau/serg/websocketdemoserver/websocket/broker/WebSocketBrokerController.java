@@ -39,7 +39,7 @@ public class WebSocketBrokerController {
     public String joinLobby(JoinLobbyRequest joinLobbyRequest) {
         // Join an existing lobby
         lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
-
+        sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName());
         return joinLobbyRequest.getLobbyCode();
     }
 
@@ -48,9 +48,10 @@ public class WebSocketBrokerController {
     public String dealNewRound(DealRoundRequest dealRoundRequest) throws Exception{
         lobbyManager.dealNewRound(dealRoundRequest.getLobbyCode());
         HandCardsRequest handCardsRequest = new HandCardsRequest();
+        handCardsRequest.setPlayerID(dealRoundRequest.getUserID());
         handCardsRequest.setHandCards(lobbyManager.getLobbyByCode(dealRoundRequest.getLobbyCode()).getPlayerByID(dealRoundRequest.getUserID()).getCardsInHand());
 
-        //TODO: Hier sollte der Spieler mit der Startkarte ermittelt werden!
+        lobbyManager.setGaiaPlayerAsStartPlayer(dealRoundRequest.getLobbyCode());
         sendActivePlayerMessage(dealRoundRequest.getLobbyCode());
 
         return objectMapper.writeValueAsString(handCardsRequest);
@@ -65,17 +66,23 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/play_card")
-    @SendTo("/topic/card_played")
-    public String playCard(CardPlayRequest playCardRequest) throws Exception {
+    public void playCard(CardPlayRequest playCardRequest) throws Exception {
         Card card  = lobbyManager.cardPlayed(playCardRequest);
         CardPlayedRequest cardPlayedRequest = new CardPlayedRequest();
         cardPlayedRequest.setCardType(card.getCardType());
         cardPlayedRequest.setColor(card.getColor());
-        cardPlayedRequest.setValue(card.getValue());
-
+        cardPlayedRequest.setValue(String.valueOf(card.getValue()));
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
-        return objectMapper.writeValueAsString(cardPlayedRequest);
+        // Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
+        // if (currentLobby.isCurrentTrickDone()) {
+            // Check who won the trick
+            // add trick to players claimedTricks:
+            // playerThatHasWon.addClaimedTrick()
+            // clear currentTrick
+        // }
+
+        messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
     }
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
@@ -85,5 +92,9 @@ public class WebSocketBrokerController {
     private void sendActivePlayerMessage(String lobbyCode) throws Exception {
         String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
         messagingTemplate.convertAndSend("/topic/active_player_changed", activePlayerId);
+    }
+
+    private void sendPlayerJoinedLobbyMessage(String playerName) {
+        messagingTemplate.convertAndSend("/topic/player_joined_lobby", playerName);
     }
 }

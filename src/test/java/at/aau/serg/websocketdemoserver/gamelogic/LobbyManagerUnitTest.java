@@ -6,6 +6,8 @@ import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -203,9 +205,9 @@ public class LobbyManagerUnitTest {
         Card card = new Card(CardType.BLUE, 3);
         player.getCardsInHand().add(card);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
 
         Card returnCard = lobbyManager.cardPlayed(cardPlayRequest);
@@ -224,9 +226,9 @@ public class LobbyManagerUnitTest {
     @Test
     void testCardPlayedFailureLobby() {
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode("123");
-        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
@@ -241,9 +243,9 @@ public class LobbyManagerUnitTest {
             throw new RuntimeException(e);
         }
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID("123");
+        cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
 
 
@@ -261,9 +263,9 @@ public class LobbyManagerUnitTest {
         Player player = new Player("123", "John");
         lobbyManager.addPlayerToLobby(lobbyCode, player);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(3);
+        cardPlayRequest.setValue(String.valueOf(3));
         cardPlayRequest.setLobbyCode(lobbyCode);
-        cardPlayRequest.setPlayerID(player.getPlayerID());
+        cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
@@ -279,5 +281,142 @@ public class LobbyManagerUnitTest {
 
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
         assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
+    }
+
+    @Test
+    void testSetGaiaHolderAsStartPlayer() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card gaiaCard = new Card(CardType.GAIA, 0);
+        listOfCards.add(gaiaCard);
+        player2.setCardsInHand(listOfCards);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+        lobbyManager.setGaiaPlayerAsStartPlayer(lobbyCode);
+
+        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
+    }
+
+    @Test
+    void testSetGaiaHolderAsStartPlayerWithNoGaiaInTheGame() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card card1 = new Card(CardType.GREEN, 2);
+        listOfCards.add(card1);
+        player2.setCardsInHand(listOfCards);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+
+        Assertions.assertThrows(IllegalStateException.class, () -> lobbyManager.setGaiaPlayerAsStartPlayer(lobbyCode));
+    }
+
+    @Test
+    void testPlayerDidNotCheat() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card card1 = new Card(CardType.GREEN, 2);
+        listOfCards.add(card1);
+        player1.setCardsInHand(listOfCards);
+
+        List<Card> listOfCards2 = new ArrayList<>();
+        Card card2 = new Card(CardType.GREEN, 5);
+        listOfCards2.add(card2);
+        player2.setCardsInHand(listOfCards2);
+
+        List<Card> listOfCards3 = new ArrayList<>();
+        Card card3 = new Card(CardType.RED, 2);
+        listOfCards3.add(card3);
+        player3.setCardsInHand(listOfCards3);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+
+        player1.playCardForPlayer("green", 2);
+        player2.playCardForPlayer("green", 5);
+        player3.playCardForPlayer("red", 2);
+
+        assertFalse(player1.cheatedDuringLastTrick);
+        assertFalse(player2.cheatedDuringLastTrick);
+        assertFalse(player3.cheatedDuringLastTrick);
+    }
+
+    @Test
+    void testPlayer1Cheated() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card card1 = new Card(CardType.RED, 8);
+        Card cardThatCouldHaveBeenPlayer = new Card(CardType.GREEN, 2);
+
+        listOfCards.add(card1);
+        listOfCards.add(cardThatCouldHaveBeenPlayer);
+
+        player1.setCardsInHand(listOfCards);
+
+        List<Card> listOfCards2 = new ArrayList<>();
+        Card card2 = new Card(CardType.GREEN, 5);
+        listOfCards2.add(card2);
+        player2.setCardsInHand(listOfCards2);
+
+        List<Card> listOfCards3 = new ArrayList<>();
+        Card card3 = new Card(CardType.RED, 2);
+        listOfCards3.add(card3);
+        player3.setCardsInHand(listOfCards3);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+
+        // Player 2 plays first card => card force to green
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player2.getPlayerID());
+        cardPlayRequest.setColor("green");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 3 plays correct card (has no green)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player3.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 1 cheats
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player1.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        assertTrue(player1.cheatedDuringLastTrick);
+        assertFalse(player2.cheatedDuringLastTrick);
+        assertFalse(player3.cheatedDuringLastTrick);
     }
 }

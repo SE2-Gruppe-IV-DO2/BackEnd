@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,13 +33,42 @@ public class DeckUnitTest {
         deck.dealNewRound(playerList);
         assertEquals(15, playerList.get(0).getCardsInHand().size());
 
-        playerList.add(new Player("playerId4", "Player4"));
+        deck.dealNewRound(playerList);
+        assertEquals(15, playerList.get(1).getCardsInHand().size());
+
+        deck.dealNewRound(playerList);
+        assertEquals(15, playerList.get(2).getCardsInHand().size());
+    }
+
+    @Test
+    void test_dealing_numOfCards_with_4_players() {
+        playerList.add(new Player("playerID4", "Player4"));
         deck.dealNewRound(playerList);
         assertEquals(14, playerList.get(0).getCardsInHand().size());
+        assertEquals(14, playerList.get(1).getCardsInHand().size());
+        assertEquals(14, playerList.get(2).getCardsInHand().size());
+        assertEquals(14, playerList.get(3).getCardsInHand().size());
+    }
 
-        playerList.add(new Player("playerId5", "Player5"));
+    @Test
+    void test_dealing_numOfCards_with_5_players() {
+        playerList.add(new Player("playerID4", "Player4"));
+        playerList.add(new Player("playerID5", "Player5"));
         deck.dealNewRound(playerList);
         assertEquals(13, playerList.get(0).getCardsInHand().size());
+        assertEquals(13, playerList.get(1).getCardsInHand().size());
+        assertEquals(13, playerList.get(2).getCardsInHand().size());
+        assertEquals(13, playerList.get(3).getCardsInHand().size());
+        assertEquals(13, playerList.get(4).getCardsInHand().size());
+    }
+
+    @Test
+    void test_multiple_dealing_requests() {
+        deck.dealNewRound(playerList);
+        List<Card> firstDeal = playerList.get(0).getCardsInHand();
+        deck.dealNewRound(playerList);
+
+        Assertions.assertEquals(firstDeal, playerList.get(0).getCardsInHand());
     }
 
     @Test
@@ -78,7 +108,7 @@ public class DeckUnitTest {
     }
 
     @Test
-    public void test_evaluateTrick_allGoldenSicklesAndMistletoes(){
+    void test_evaluateTrick_allGoldenSickleAndMistletoe(){
         LinkedHashMap<String, Card> playedCards = new LinkedHashMap<>();
         playedCards.put("playerID1", new Card(CardType.GOLDEN_SICKLE, 0));
         playedCards.put("playerID2", new Card(CardType.GOLDEN_SICKLE, 0));

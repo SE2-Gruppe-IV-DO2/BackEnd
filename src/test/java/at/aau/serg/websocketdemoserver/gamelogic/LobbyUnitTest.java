@@ -1,11 +1,11 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
+import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -170,4 +170,45 @@ public class LobbyUnitTest {
         lobby.addPlayer(p);
         assertNull(lobby.getPlayerByID("1"));
     }
+
+    @Test
+    void testIfCurrentTrickIsDone_True() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        Player p2 = new Player("player2", "TEST");
+        lobby.addPlayer(p2);
+        Player p3 = new Player("player2", "TEST");
+        lobby.addPlayer(p3);
+
+        Card c1 = new Card(CardType.GREEN, 2);
+        Card c2 = new Card(CardType.RED, 2);
+        Card c3 = new Card(CardType.BLUE, 2);
+
+        lobby.getCurrentTrick().add(c1);
+        lobby.getCurrentTrick().add(c2);
+        lobby.getCurrentTrick().add(c3);
+
+        assertTrue(lobby.isCurrentTrickDone());
+    }
+
+    @Test
+    void testIfCurrentTrickIsDone_False() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        Player p2 = new Player("player2", "TEST");
+        lobby.addPlayer(p2);
+        Player p3 = new Player("player2", "TEST");
+        lobby.addPlayer(p3);
+
+        Card c1 = new Card(CardType.GREEN, 2);
+        Card c2 = new Card(CardType.RED, 2);
+        Card c3 = new Card(CardType.BLUE, 2);
+
+        lobby.getCurrentTrick().add(c1);
+        lobby.getCurrentTrick().add(c2);
+
+        assertFalse(lobby.isCurrentTrickDone());
+    }
+
+
 }

@@ -110,15 +110,18 @@ public class LobbyManager {
         if (targetLobby == null) {
             throw new IllegalArgumentException("Lobby not found");
         }
-        Player player = targetLobby.getPlayerByID(cardPlayRequest.getPlayerID());
+        Player player = targetLobby.getPlayerByID(cardPlayRequest.getUserID());
         if (player == null) {
-            throw new IllegalArgumentException("Player not found in the lobby");
+            throw new IllegalArgumentException("Player not found in the lobby: " + cardPlayRequest.getUserID());
         }
-        Card c = player.playCardForPlayer(cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        Card c = player.playCardForPlayer(cardPlayRequest.getColor(), Integer.valueOf(cardPlayRequest.getValue()));
         if (c == null) {
             throw new IllegalArgumentException("Card not found in player's hand");
         }
         targetLobby.getCurrentTrick().add(c);
+
+        player.updateCheatAttempt(targetLobby.getCurrentTrick(), cardPlayRequest.getColor());
+
         return c;
     }
 
@@ -131,5 +134,10 @@ public class LobbyManager {
         Lobby lobby = getLobbyByCode(code);
         Player player = lobby.getActivePlayer();
         return player == null ? "" : player.getPlayerID();
+    }
+
+    public void setGaiaPlayerAsStartPlayer(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        lobby.setGaiaHolderAsStartPlayer();
     }
 }
