@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +14,7 @@ import org.springframework.web.util.HtmlUtils;
 
 @Controller
 public class WebSocketBrokerController {
-    private LobbyManager lobbyManager = LobbyManager.getInstance();
+    private final LobbyManager lobbyManager = LobbyManager.getInstance();
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -74,7 +75,7 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
         endTurnForActivePlayer(playCardRequest.getLobbyCode());
 
-        // Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
+        Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         // if (currentLobby.isCurrentTrickDone()) {
             // Check who won the trick
             // add trick to players claimedTricks:
@@ -82,8 +83,28 @@ public class WebSocketBrokerController {
             // clear currentTrick
         // }
 
+        if (currentLobby.isRoundFinished()) {
+            endRoundForLobby(playCardRequest.getLobbyCode());
+        }
+
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
     }
+
+    @MessageMapping("/get_points")
+    public void getPoints(PointsRequest pointsRequest) {
+        String lobbyCode = pointsRequest.getLobbyCode();
+        Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
+
+        PointsResponse pointsResponse = new PointsResponse();
+        pointsResponse.setPlayerPoints(targetLobby.getPlayerPoints());
+
+        messagingTemplate.convertAndSend("/topic/points/" + lobbyCode, pointsResponse);
+    }
+
+    private void endRoundForLobby(String lobbyCode) {
+        messagingTemplate.convertAndSend("/topic/round_ended" + lobbyCode, "Round ended");
+    }
+
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
         sendActivePlayerMessage(lobbyCode);
