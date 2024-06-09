@@ -202,7 +202,6 @@ public class LobbyUnitTest {
 
         Card c1 = new Card(CardType.GREEN, 2);
         Card c2 = new Card(CardType.RED, 2);
-        Card c3 = new Card(CardType.BLUE, 2);
 
         lobby.getCurrentTrick().add(c1);
         lobby.getCurrentTrick().add(c2);
@@ -283,9 +282,7 @@ public class LobbyUnitTest {
         lobby.addPlayer(new Player("player2", "test"));
         lobby.addPlayer(new Player("player3", "test"));
 
-        assertThrows(IllegalStateException.class, () -> {
-            lobby.setPlayerAsActivePlayer("player4");
-        });
+        assertThrows(IllegalStateException.class, () -> lobby.setPlayerAsActivePlayer("player4"));
     }
 
 }
