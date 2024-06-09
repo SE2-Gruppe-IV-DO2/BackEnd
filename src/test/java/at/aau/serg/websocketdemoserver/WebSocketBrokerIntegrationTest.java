@@ -325,6 +325,21 @@ class WebSocketBrokerIntegrationTest {
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
+
+        payload = new JSONObject();
+        payload.put("lobbyCode", lobbyCode);
+        payload.put("userID", "TEST_USER_ID");
+        card = cardList.get(2);
+        payload.put("color", card.getColor());
+        payload.put("value", card.getValue());
+
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+
+        playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
+
+        playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
     }
 
     /**
