@@ -85,12 +85,12 @@ public class WebSocketBrokerController {
         // }
 
         if (currentLobby.isRoundFinished()) {
+            currentLobby.calculateAndSetRoundPoints();
             endRoundForLobby(playCardRequest.getLobbyCode());
         }
 
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
 
-        Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
             Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
             sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName());

@@ -158,10 +158,12 @@ public class Lobby {
 
     public void calculateAndSetRoundPoints() {
         for (Player player : players) {
+            System.out.println(playerPoints.toString());
+            Map<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
             if (player.isPlayerDead()) {
-                playerPoints.get(player.getPlayerID()).put(currentRound, -3);
+                roundPoints.put(currentRound, -3);
             } else {
-                playerPoints.get(player.getPlayerID()).put(currentRound, getLowestCardValueSum(player));
+                roundPoints.put(currentRound, getLowestCardValueSum(player));
             }
         }
         currentRound++;
