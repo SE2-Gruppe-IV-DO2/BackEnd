@@ -99,6 +99,14 @@ public class DeckUnitTest {
     }
 
     @Test
+    public void test_card_imagePath() {
+        Card card = new Card(CardType.GAIA, 123);
+        card.setColor("green");
+        card.createImagePath();
+        assertEquals("card_gaia123_green", card.getImgPath());
+    }
+
+    @Test
     public void test_evaluateTrick_pureCards() {
         LinkedHashMap<String, Card> playedCards = new LinkedHashMap<>();
         playedCards.put("playerID1", new Card(CardType.BLUE, 1));

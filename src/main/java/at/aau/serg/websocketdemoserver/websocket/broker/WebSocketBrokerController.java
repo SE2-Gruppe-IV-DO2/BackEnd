@@ -3,6 +3,7 @@ package at.aau.serg.websocketdemoserver.websocket.broker;
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,17 @@ public class WebSocketBrokerController {
         }
 
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
+
+        Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
+        if (currentLobby.isCurrentTrickDone()) {
+            Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
+            sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName());
+
+            sendActivePlayerMessage(playCardRequest.getLobbyCode());
+        }
+        else {
+            endTurnForActivePlayer(playCardRequest.getLobbyCode());
+        }
     }
 
     @MessageMapping("/get_points")
@@ -117,5 +129,12 @@ public class WebSocketBrokerController {
 
     private void sendPlayerJoinedLobbyMessage(String playerName) {
         messagingTemplate.convertAndSend("/topic/player_joined_lobby", playerName);
+    }
+
+    private void sendPlayerWonTrickMessage(String playerId, String playerName) {
+        TrickWonMessage trickMessage = new TrickWonMessage();
+        trickMessage.setWinningPlayerId(playerId);
+        trickMessage.setWinningPlayerName(playerName);
+        messagingTemplate.convertAndSend("/topic/trick_won", trickMessage);
     }
 }
