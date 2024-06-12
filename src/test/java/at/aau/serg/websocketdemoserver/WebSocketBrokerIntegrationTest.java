@@ -59,6 +59,8 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE = "/topic/card_played";
 
     private final String WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE = "/topic/active_player_changed";
+    private final String WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK = "/topic/trick_won";
+
 
     /**
      * Queue of messages from the server.
@@ -282,6 +284,61 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         messages.poll(1, TimeUnit.SECONDS);
         String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
+    }
+
+    @Test
+    void testPlayerHasWonTrickEndpoint() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        List<Card> cardList = setUpDealNewRound(lobbyCode);
+        Card card = cardList.get(0);
+
+        JSONObject payload = new JSONObject();
+        payload.put("lobbyCode", lobbyCode);
+        payload.put("userID", "TEST_USER_ID");
+        payload.put("color", card.getColor());
+        payload.put("value", card.getValue());
+
+        StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        messages.poll(1, TimeUnit.SECONDS);
+
+        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
+
+        payload = new JSONObject();
+        payload.put("lobbyCode", lobbyCode);
+        payload.put("userID", "TEST_USER_ID");
+        card = cardList.get(1);
+        payload.put("color", card.getColor());
+        payload.put("value", card.getValue());
+
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+
+        String playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
+
+        playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
+
+        payload = new JSONObject();
+        payload.put("lobbyCode", lobbyCode);
+        payload.put("userID", "TEST_USER_ID");
+        card = cardList.get(2);
+        payload.put("color", card.getColor());
+        payload.put("value", card.getValue());
+
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+
+        playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
+
+        playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
     }
 

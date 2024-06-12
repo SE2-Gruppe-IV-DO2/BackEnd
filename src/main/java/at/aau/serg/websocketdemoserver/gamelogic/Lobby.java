@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Lobby {
@@ -23,6 +24,8 @@ public class Lobby {
     @Getter
     private List<Card> currentTrick;
     @Getter
+    private LinkedHashMap<String, Card> lastPlayedCardPerPlayer;
+    @Getter
     private int indexOfActivePlayer = -1;
 
     public Lobby(String lobbyCode) {
@@ -32,6 +35,7 @@ public class Lobby {
         this.deck = new Deck();
         this.lobbyCode = lobbyCode.trim();
         this.currentTrick = new ArrayList<>();
+        this.lastPlayedCardPerPlayer = new LinkedHashMap<>();
     }
 
     public void addPlayer(Player player) {
@@ -108,7 +112,46 @@ public class Lobby {
             throw new IllegalStateException("No player has the Gaia Card!");
     }
 
+    public void setPlayerAsActivePlayer(String playerId) {
+        boolean foundWantedPlayer = false;
+
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getPlayerID().equals(playerId)) {
+                foundWantedPlayer = true;
+                indexOfActivePlayer = i;
+            }
+        }
+
+        if (!foundWantedPlayer)
+            throw new IllegalStateException("Player with id " + playerId + " could not be found!");
+    }
+
     public boolean isCurrentTrickDone() {
         return (currentTrick.size() == players.size());
+    }
+
+    public void addCardToTrick(String playerId, Card card) {
+        getCurrentTrick().add(card);
+        getLastPlayedCardPerPlayer().put(playerId, card);
+    }
+
+    public void clearTrick() {
+        currentTrick.clear();
+        lastPlayedCardPerPlayer.clear();
+    }
+
+    public Player evaluateAndHandoutTrick() {
+        //Check who won the trick
+        String playerIdOfWinner = deck.evaluateWinningPlayerForRound(getLastPlayedCardPerPlayer());
+        //add trick to players claimedTricks:
+        Player playerThatHasWon = getPlayerByID(playerIdOfWinner);
+        playerThatHasWon.addClaimedTrick(getCurrentTrick());
+
+        clearTrick();
+
+        //player that has won the trick should be active player for new round
+        setPlayerAsActivePlayer(playerIdOfWinner);
+
+        return playerThatHasWon;
     }
 }

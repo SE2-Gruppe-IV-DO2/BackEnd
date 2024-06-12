@@ -118,7 +118,7 @@ public class LobbyManager {
         if (c == null) {
             throw new IllegalArgumentException("Card not found in player's hand");
         }
-        targetLobby.getCurrentTrick().add(c);
+        targetLobby.addCardToTrick(cardPlayRequest.getUserID(), c);
 
         player.updateCheatAttempt(targetLobby.getCurrentTrick(), cardPlayRequest.getColor());
 

@@ -202,7 +202,6 @@ public class LobbyUnitTest {
 
         Card c1 = new Card(CardType.GREEN, 2);
         Card c2 = new Card(CardType.RED, 2);
-        Card c3 = new Card(CardType.BLUE, 2);
 
         lobby.getCurrentTrick().add(c1);
         lobby.getCurrentTrick().add(c2);
@@ -210,5 +209,80 @@ public class LobbyUnitTest {
         assertFalse(lobby.isCurrentTrickDone());
     }
 
+    @Test
+    void testAddCardToTrick() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        Player p2 = new Player("player2", "TEST");
+        lobby.addPlayer(p2);
+
+        Card c1 = new Card(CardType.GREEN, 2);
+        lobby.addCardToTrick(p.getPlayerID(), c1);
+
+        assertEquals(lobby.getCurrentTrick().size(), 1);
+        assertEquals(lobby.getLastPlayedCardPerPlayer().size(), 1);
+        assertEquals(c1, lobby.getCurrentTrick().get(0));
+        assertEquals(c1, lobby.getLastPlayedCardPerPlayer().get(p.getPlayerID()));
+    }
+
+    @Test
+    void testClearTrick() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        Player p2 = new Player("player2", "TEST");
+        lobby.addPlayer(p2);
+
+        Card c1 = new Card(CardType.GREEN, 2);
+        lobby.addCardToTrick(p.getPlayerID(), c1);
+
+        assertEquals(lobby.getCurrentTrick().size(), 1);
+        assertEquals(lobby.getLastPlayedCardPerPlayer().size(), 1);
+
+        lobby.clearTrick();
+
+        assertEquals(lobby.getCurrentTrick().size(), 0);
+        assertEquals(lobby.getLastPlayedCardPerPlayer().size(), 0);
+    }
+
+    @Test
+    void testEvaluateAndHandoutTrick() {
+        Player p = new Player("player1", "TEST");
+        lobby.addPlayer(p);
+        Player p2 = new Player("player2", "TEST");
+        lobby.addPlayer(p2);
+
+        Card c1 = new Card(CardType.GREEN, 2);
+        lobby.addCardToTrick(p.getPlayerID(), c1);
+
+        assertEquals(lobby.getCurrentTrick().size(), 1);
+        assertEquals(lobby.getLastPlayedCardPerPlayer().size(), 1);
+
+        lobby.evaluateAndHandoutTrick();
+
+        // Nach dem Zuteilen sollte der Lobby Stapel leer sein und der Spieler die gewonnene Karte haben
+        assertEquals(lobby.getCurrentTrick().size(), 0);
+        assertEquals(lobby.getLastPlayedCardPerPlayer().size(), 0);
+        assertEquals(p.getClaimedTricks().size(), 1);
+    }
+
+    @Test
+    public void testSetPlayerAsActivePlayer_PlayerFound() {
+        lobby.addPlayer(new Player("player1", "test"));
+        lobby.addPlayer(new Player("player2", "test"));
+        lobby.addPlayer(new Player("player3", "test"));
+
+        lobby.setPlayerAsActivePlayer("player2");
+
+        assertEquals(1, lobby.getIndexOfActivePlayer());
+    }
+
+    @Test
+    public void testSetPlayerAsActivePlayer_PlayerNotFound() {
+        lobby.addPlayer(new Player("player1", "test"));
+        lobby.addPlayer(new Player("player2", "test"));
+        lobby.addPlayer(new Player("player3", "test"));
+
+        assertThrows(IllegalStateException.class, () -> lobby.setPlayerAsActivePlayer("player4"));
+    }
 
 }
