@@ -33,9 +33,10 @@ public class Lobby {
     @Getter
     private int indexOfActivePlayer = -1;
     @Getter
+    @Setter
     private Map<String, HashMap<Integer, Integer>> playerPoints;
     @Getter
-    private int currentRound = 0;
+    private int currentRound = 1;
 
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
@@ -141,7 +142,7 @@ public class Lobby {
 
     public boolean isRoundFinished() {
         for (Player player : players) {
-            if (!player.getCardsInHand().isEmpty() || !player.isPlayerDead()) {
+            if (!player.getCardsInHand().isEmpty() || player.isPlayerDead()) {
                 return false;
             }
         }
@@ -158,7 +159,6 @@ public class Lobby {
 
     public void calculateAndSetRoundPoints() {
         for (Player player : players) {
-            System.out.println(playerPoints.toString());
             Map<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
             if (player.isPlayerDead()) {
                 roundPoints.put(currentRound, -3);

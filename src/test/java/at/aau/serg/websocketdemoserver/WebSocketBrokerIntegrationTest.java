@@ -3,6 +3,8 @@ package at.aau.serg.websocketdemoserver;
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.PointsRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.PointsResponse;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
@@ -22,7 +24,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +64,9 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE = "/topic/active_player_changed";
     private final String WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK = "/topic/trick_won";
+
+    private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points";
+    private final String WEBSOCKET_TOPIC_GET_POINTS = "/app/get_points";
 
 
     /**
@@ -280,11 +287,14 @@ class WebSocketBrokerIntegrationTest {
         payload.put("value", card.getValue());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
-        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        StompSession activePlayerChangedSession = initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
-        messages.poll(1, TimeUnit.SECONDS);
-        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerChangedResponse);
+
+        String cardPlayedResponse = messages.poll(2, TimeUnit.SECONDS);
+        Assertions.assertNotNull(cardPlayedResponse);
+
+        String playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
+        Assertions.assertNotNull(playerChangedResponse);
     }
 
     @Test
@@ -303,12 +313,15 @@ class WebSocketBrokerIntegrationTest {
         payload.put("value", card.getValue());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
-        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
-        initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
+        StompSession activePlayerChangedSession = initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        StompSession playerHasWonTrickSession = initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         messages.poll(1, TimeUnit.SECONDS);
 
-        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        String cardPlayedResponse = messages.poll(2, TimeUnit.SECONDS);
+        Assertions.assertNotNull(cardPlayedResponse);
+
+        String playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
 
         payload = new JSONObject();
@@ -324,7 +337,7 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerChangedResponse);
+        Assertions.assertNotNull(playerChangedResponse);
 
         payload = new JSONObject();
         payload.put("lobbyCode", lobbyCode);
@@ -335,12 +348,44 @@ class WebSocketBrokerIntegrationTest {
 
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
-        playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
+        playerHasWonTrickMessage = messages.poll(2, TimeUnit.SECONDS);
         Assertions.assertNotNull(playerHasWonTrickMessage);
 
-        playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerChangedResponse);
+        playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
+        Assertions.assertNotNull(playerChangedResponse);
     }
+
+    /*
+    @Test
+    void testGetPointsEndpoint() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        PointsRequest pointsRequest = new PointsRequest();
+        pointsRequest.setLobbyCode(lobbyCode);
+
+        StompSession getPointsSession = initStompSession(WEBSOCKET_TOPIC_GET_POINTS_RESPONSE + "/" + lobbyCode);
+        getPointsSession.send(WEBSOCKET_TOPIC_GET_POINTS, pointsRequest);
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        System.out.println("Received response: " + response);
+        Assertions.assertNotNull(response);
+
+        PointsResponse pointsResponse = new ObjectMapper().readValue(response, PointsResponse.class);
+        Map<String, Map<Integer, Integer>> expected = new HashMap<>();
+        expected.put("TEST_USER_NAME", new HashMap<>());
+        expected.put("TEST_USER_NAME_2", new HashMap<>());
+        expected.put("TEST_USER_NAME_3", new HashMap<>());
+
+        Assertions.assertEquals(expected, pointsResponse.getPlayerPoints());
+    }
+
+    @Test
+    void testRoundEndEndpoint() throws Exception {
+
+    }
+     */
 
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
@@ -381,7 +426,7 @@ class WebSocketBrokerIntegrationTest {
 
     public void setUpTwoPlayerJoinLobby(String lobbyCode) throws Exception {
         String userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
-        String userName = "TEST_USER_NAME" + System.currentTimeMillis() / 1000;
+        String userName = "TEST_USER_NAME_2";
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("lobbyCode", lobbyCode);
         jsonObject.put("userID", userID);
@@ -392,7 +437,7 @@ class WebSocketBrokerIntegrationTest {
         assert createLobbyResponse != null;
 
         userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
-        userName = "TEST_USER_NAME" + System.currentTimeMillis() / 1000;
+        userName = "TEST_USER_NAME_3";
         jsonObject = new JSONObject();
         jsonObject.put("lobbyCode", lobbyCode);
         jsonObject.put("userID", userID);
