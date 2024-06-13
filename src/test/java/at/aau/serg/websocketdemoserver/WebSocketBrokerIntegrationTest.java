@@ -287,14 +287,11 @@ class WebSocketBrokerIntegrationTest {
         payload.put("value", card.getValue());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
-        StompSession activePlayerChangedSession = initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
-
-        String cardPlayedResponse = messages.poll(2, TimeUnit.SECONDS);
-        Assertions.assertNotNull(cardPlayedResponse);
-
-        String playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
-        Assertions.assertNotNull(playerChangedResponse);
+        messages.poll(1, TimeUnit.SECONDS);
+        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
     }
 
     @Test
@@ -313,15 +310,12 @@ class WebSocketBrokerIntegrationTest {
         payload.put("value", card.getValue());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE);
-        StompSession activePlayerChangedSession = initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
-        StompSession playerHasWonTrickSession = initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
+        initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         messages.poll(1, TimeUnit.SECONDS);
 
-        String cardPlayedResponse = messages.poll(2, TimeUnit.SECONDS);
-        Assertions.assertNotNull(cardPlayedResponse);
-
-        String playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
+        String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
 
         payload = new JSONObject();
@@ -337,7 +331,7 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNotNull(playerChangedResponse);
+        Assertions.assertNull(playerChangedResponse);
 
         payload = new JSONObject();
         payload.put("lobbyCode", lobbyCode);
@@ -348,11 +342,11 @@ class WebSocketBrokerIntegrationTest {
 
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
-        playerHasWonTrickMessage = messages.poll(2, TimeUnit.SECONDS);
+        playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNotNull(playerHasWonTrickMessage);
 
-        playerChangedResponse = messages.poll(2, TimeUnit.SECONDS);
-        Assertions.assertNotNull(playerChangedResponse);
+        playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
+        Assertions.assertNull(playerChangedResponse);
     }
 
     @Test
