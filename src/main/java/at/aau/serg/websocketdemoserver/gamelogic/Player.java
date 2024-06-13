@@ -10,6 +10,9 @@ import java.util.*;
 
 @Getter
 public class Player {
+
+    private final Integer MINUS_POINTS_FOR_CHEATING = 5;
+
     private final String playerID;
     @Setter
     private String playerName;
@@ -18,6 +21,7 @@ public class Player {
 
     HashMap<CardType, Integer> claimedTricks = new HashMap<>();
     boolean cheatedDuringLastTrick = false;
+    private int minusPointsForCheatingOrWrongAccusation = 0;
 
     public Player(String playerID, String playerName) {
         this.playerID = playerID;
@@ -133,5 +137,9 @@ public class Player {
         }
 
         return maxCardType;
+    }
+
+    public void removePointsForCheatingOrWrongAccusation(){
+        this.minusPointsForCheatingOrWrongAccusation -= MINUS_POINTS_FOR_CHEATING;
     }
 }

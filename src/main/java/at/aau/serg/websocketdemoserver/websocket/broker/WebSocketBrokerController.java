@@ -88,6 +88,27 @@ public class WebSocketBrokerController {
             endTurnForActivePlayer(playCardRequest.getLobbyCode());
         }
     }
+
+    @MessageMapping("/accuse_player_of_cheating")
+    @SendTo("/topic/accusation_result")
+    public String accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
+
+        Lobby currentLobby = lobbyManager.getLobbyByCode(cheatAccusationRequest.getLobbyCode());
+
+        Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
+        Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
+
+        if (accusedPlayer.isCheatedDuringLastTrick()){
+            accusedPlayer.removePointsForCheatingOrWrongAccusation();
+            cheatAccusationRequest.setCorrectAccusation(true);
+        } else {
+            player.removePointsForCheatingOrWrongAccusation();
+            cheatAccusationRequest.setCorrectAccusation(false);
+        }
+
+        return objectMapper.writeValueAsString(cheatAccusationRequest);
+    }
+
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
         sendActivePlayerMessage(lobbyCode);
