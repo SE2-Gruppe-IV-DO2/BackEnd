@@ -7,6 +7,4 @@ import lombok.Data;
 public class PointsRequest {
     @JsonProperty("lobbyCode")
     String lobbyCode;
-
-
 }

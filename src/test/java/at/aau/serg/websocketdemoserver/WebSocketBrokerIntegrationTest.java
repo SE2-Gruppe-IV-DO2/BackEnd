@@ -65,8 +65,8 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE = "/topic/active_player_changed";
     private final String WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK = "/topic/trick_won";
 
-    private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points";
     private final String WEBSOCKET_TOPIC_GET_POINTS = "/app/get_points";
+    private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points/";
 
 
     /**
@@ -355,7 +355,6 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertNotNull(playerChangedResponse);
     }
 
-    /*
     @Test
     void testGetPointsEndpoint() throws Exception {
         String lobbyCode = setUpLobby();
@@ -365,7 +364,7 @@ class WebSocketBrokerIntegrationTest {
         PointsRequest pointsRequest = new PointsRequest();
         pointsRequest.setLobbyCode(lobbyCode);
 
-        StompSession getPointsSession = initStompSession(WEBSOCKET_TOPIC_GET_POINTS_RESPONSE + "/" + lobbyCode);
+        StompSession getPointsSession = initStompSession(WEBSOCKET_TOPIC_GET_POINTS_RESPONSE + lobbyCode);
         getPointsSession.send(WEBSOCKET_TOPIC_GET_POINTS, pointsRequest);
 
         String response = messages.poll(5, TimeUnit.SECONDS);
@@ -380,12 +379,6 @@ class WebSocketBrokerIntegrationTest {
 
         Assertions.assertEquals(expected, pointsResponse.getPlayerPoints());
     }
-
-    @Test
-    void testRoundEndEndpoint() throws Exception {
-
-    }
-     */
 
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).

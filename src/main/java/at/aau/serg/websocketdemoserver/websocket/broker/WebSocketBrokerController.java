@@ -5,6 +5,7 @@ import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -74,28 +75,20 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setCardType(card.getCardType());
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
-        endTurnForActivePlayer(playCardRequest.getLobbyCode());
-
-        Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
-        // if (currentLobby.isCurrentTrickDone()) {
-            // Check who won the trick
-            // add trick to players claimedTricks:
-            // playerThatHasWon.addClaimedTrick()
-            // clear currentTrick
-        // }
-
-        if (currentLobby.isRoundFinished()) {
-            currentLobby.calculateAndSetRoundPoints();
-            endRoundForLobby(playCardRequest.getLobbyCode());
-        }
 
         messagingTemplate.convertAndSend("/topic/card_played", cardPlayedRequest);
 
+        Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
             Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
             sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName());
 
             sendActivePlayerMessage(playCardRequest.getLobbyCode());
+
+            if (currentLobby.isRoundFinished()) {
+                currentLobby.calculateAndSetRoundPoints();
+                endRoundForLobby(playCardRequest.getLobbyCode());
+            }
         }
         else {
             endTurnForActivePlayer(playCardRequest.getLobbyCode());
@@ -110,7 +103,13 @@ public class WebSocketBrokerController {
         PointsResponse pointsResponse = new PointsResponse();
         pointsResponse.setPlayerPoints(targetLobby.getPlayerPoints());
 
-        messagingTemplate.convertAndSend("/topic/points/" + lobbyCode, pointsResponse);
+        System.out.println(pointsResponse.getPlayerPoints().toString());
+
+        try {
+            messagingTemplate.convertAndSend("/topic/points/" + lobbyCode, objectMapper.writeValueAsString(pointsResponse));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void endRoundForLobby(String lobbyCode) {
