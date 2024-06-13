@@ -280,7 +280,8 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, player2);
 
         lobbyManager.endCurrentPlayersTurnForLobby(lobbyCode);
-        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
+        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode).getPlayerID());
+        assertEquals(player2.getPlayerName(), lobbyManager.getActivePlayerForLobby(lobbyCode).getPlayerName());
     }
 
     @Test
@@ -301,7 +302,8 @@ public class LobbyManagerUnitTest {
         lobbyManager.addPlayerToLobby(lobbyCode, player3);
         lobbyManager.setGaiaPlayerAsStartPlayer(lobbyCode);
 
-        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode));
+        assertEquals(player2.getPlayerID(), lobbyManager.getActivePlayerForLobby(lobbyCode).getPlayerID());
+        assertEquals(player2.getPlayerName(), lobbyManager.getActivePlayerForLobby(lobbyCode).getPlayerName());
     }
 
     @Test

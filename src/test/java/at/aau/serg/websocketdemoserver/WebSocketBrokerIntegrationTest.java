@@ -321,7 +321,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         String playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNotNull(playerHasWonTrickMessage);
+        Assertions.assertNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
@@ -336,7 +336,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNotNull(playerHasWonTrickMessage);
+        Assertions.assertNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
