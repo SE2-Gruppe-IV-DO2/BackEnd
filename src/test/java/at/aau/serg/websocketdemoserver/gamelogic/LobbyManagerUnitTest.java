@@ -423,6 +423,107 @@ public class LobbyManagerUnitTest {
     }
 
     @Test
+    void testPlayerCheatedInPreviousPlay() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card card1 = new Card(CardType.RED, 8);
+        Card card11 = new Card(CardType.RED, 2);
+        Card cardThatCouldHaveBeenPlayer = new Card(CardType.GREEN, 2);
+
+        listOfCards.add(card1);
+        listOfCards.add(card11);
+
+        listOfCards.add(cardThatCouldHaveBeenPlayer);
+
+        player1.setCardsInHand(listOfCards);
+
+        List<Card> listOfCards2 = new ArrayList<>();
+        Card card2 = new Card(CardType.GREEN, 5);
+        Card card22 = new Card(CardType.GREEN, 3);
+
+        listOfCards2.add(card2);
+        listOfCards2.add(card22);
+
+        player2.setCardsInHand(listOfCards2);
+
+        List<Card> listOfCards3 = new ArrayList<>();
+        Card card3 = new Card(CardType.RED, 2);
+        Card card33 = new Card(CardType.RED, 3);
+
+        listOfCards3.add(card3);
+        listOfCards3.add(card33);
+
+        player3.setCardsInHand(listOfCards3);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+
+        // Player 2 plays first card => card force to green
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player2.getPlayerID());
+        cardPlayRequest.setColor("green");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 3 plays correct card (has no green)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player3.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 1 cheats
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player1.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        assertTrue(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
+
+        // Player 1 plays last card (can not cheat with last card)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player1.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 2 plays last card (can not cheat with last card)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player2.getPlayerID());
+        cardPlayRequest.setColor("green");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 3 plays last card (can not cheat with last card)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player3.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // überprüfen ob schummeln nach richtiger Karte noch immer korrekt ist
+        assertTrue(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
+    }
+
+
+    @Test
     void testResetOfCheatTracker() throws Exception {
         String lobbyCode = lobbyManager.createLobby();
 
