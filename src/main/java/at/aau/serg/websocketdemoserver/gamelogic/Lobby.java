@@ -201,4 +201,10 @@ public class Lobby {
 
         return playerThatHasWon;
     }
+
+    public void resetCheatAttempts() {
+        for (Player player : players) {
+            player.cheatedInCurrentRound = false;
+        }
+    }
 }

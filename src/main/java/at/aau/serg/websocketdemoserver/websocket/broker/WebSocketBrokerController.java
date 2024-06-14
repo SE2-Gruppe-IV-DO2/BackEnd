@@ -88,6 +88,9 @@ public class WebSocketBrokerController {
             if (currentLobby.isRoundFinished()) {
                 currentLobby.calculateAndSetRoundPoints();
                 endRoundForLobby(playCardRequest.getLobbyCode());
+
+                // Muss erst nach dem Abrechnen der Schummelanschuldigung erfolgen
+                currentLobby.resetCheatAttempts();
             }
         }
         else {

@@ -357,9 +357,9 @@ public class LobbyManagerUnitTest {
         player2.playCardForPlayer("green", "green", 5);
         player3.playCardForPlayer("red", "red", 2);
 
-        assertFalse(player1.cheatedDuringLastTrick);
-        assertFalse(player2.cheatedDuringLastTrick);
-        assertFalse(player3.cheatedDuringLastTrick);
+        assertFalse(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
     }
 
     @Test
@@ -417,8 +417,74 @@ public class LobbyManagerUnitTest {
         cardPlayRequest.setColor("red");
         lobbyManager.cardPlayed(cardPlayRequest);
 
-        assertTrue(player1.cheatedDuringLastTrick);
-        assertFalse(player2.cheatedDuringLastTrick);
-        assertFalse(player3.cheatedDuringLastTrick);
+        assertTrue(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
+    }
+
+    @Test
+    void testResetOfCheatTracker() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+
+        Player player1 = new Player("player1", "TEST");
+        Player player2 = new Player("player2", "TEST");
+        Player player3 = new Player("player3", "TEST");
+
+        List<Card> listOfCards = new ArrayList<>();
+        Card card1 = new Card(CardType.RED, 8);
+        Card cardThatCouldHaveBeenPlayer = new Card(CardType.GREEN, 2);
+
+        listOfCards.add(card1);
+        listOfCards.add(cardThatCouldHaveBeenPlayer);
+
+        player1.setCardsInHand(listOfCards);
+
+        List<Card> listOfCards2 = new ArrayList<>();
+        Card card2 = new Card(CardType.GREEN, 5);
+        listOfCards2.add(card2);
+        player2.setCardsInHand(listOfCards2);
+
+        List<Card> listOfCards3 = new ArrayList<>();
+        Card card3 = new Card(CardType.RED, 2);
+        listOfCards3.add(card3);
+        player3.setCardsInHand(listOfCards3);
+
+        lobbyManager.addPlayerToLobby(lobbyCode, player1);
+        lobbyManager.addPlayerToLobby(lobbyCode, player2);
+        lobbyManager.addPlayerToLobby(lobbyCode, player3);
+
+        // Player 2 plays first card => card force to green
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player2.getPlayerID());
+        cardPlayRequest.setColor("green");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 3 plays correct card (has no green)
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player3.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        // Player 1 cheats
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID(player1.getPlayerID());
+        cardPlayRequest.setColor("red");
+        lobbyManager.cardPlayed(cardPlayRequest);
+
+        assertTrue(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
+
+        lobbyManager.getLobbyByID(lobbyCode).resetCheatAttempts();
+
+        assertFalse(player1.cheatedInCurrentRound);
+        assertFalse(player2.cheatedInCurrentRound);
+        assertFalse(player3.cheatedInCurrentRound);
     }
 }
