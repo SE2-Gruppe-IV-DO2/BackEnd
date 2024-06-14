@@ -3,6 +3,8 @@ package at.aau.serg.websocketdemoserver;
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.PointsRequest;
+import at.aau.serg.websocketdemoserver.messaging.dtos.PointsResponse;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
@@ -22,7 +24,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +64,9 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE = "/topic/active_player_changed";
     private final String WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK = "/topic/trick_won";
+
+    private final String WEBSOCKET_TOPIC_GET_POINTS = "/app/get_points";
+    private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points/";
 
 
     /**
@@ -342,6 +349,31 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertNull(playerChangedResponse);
     }
 
+    @Test
+    void testGetPointsEndpoint() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        PointsRequest pointsRequest = new PointsRequest();
+        pointsRequest.setLobbyCode(lobbyCode);
+
+        StompSession getPointsSession = initStompSession(WEBSOCKET_TOPIC_GET_POINTS_RESPONSE + lobbyCode);
+        getPointsSession.send(WEBSOCKET_TOPIC_GET_POINTS, pointsRequest);
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        System.out.println("Received response: " + response);
+        Assertions.assertNotNull(response);
+
+        PointsResponse pointsResponse = new ObjectMapper().readValue(response, PointsResponse.class);
+        Map<String, Map<Integer, Integer>> expected = new HashMap<>();
+        expected.put("TEST_USER_NAME", new HashMap<>());
+        expected.put("TEST_USER_NAME_2", new HashMap<>());
+        expected.put("TEST_USER_NAME_3", new HashMap<>());
+
+        Assertions.assertEquals(expected, pointsResponse.getPlayerPoints());
+    }
+
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
      */
@@ -381,7 +413,7 @@ class WebSocketBrokerIntegrationTest {
 
     public void setUpTwoPlayerJoinLobby(String lobbyCode) throws Exception {
         String userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
-        String userName = "TEST_USER_NAME" + System.currentTimeMillis() / 1000;
+        String userName = "TEST_USER_NAME_2";
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("lobbyCode", lobbyCode);
         jsonObject.put("userID", userID);
@@ -392,7 +424,7 @@ class WebSocketBrokerIntegrationTest {
         assert createLobbyResponse != null;
 
         userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
-        userName = "TEST_USER_NAME" + System.currentTimeMillis() / 1000;
+        userName = "TEST_USER_NAME_3";
         jsonObject = new JSONObject();
         jsonObject.put("lobbyCode", lobbyCode);
         jsonObject.put("userID", userID);

@@ -64,6 +64,7 @@ public class LobbyManager {
         if (selectedLobby.isLobbyGameStarted())
             throw new IllegalStateException("Could not start game for Lobby. Game has already started!");
 
+        selectedLobby.createPointBoard();
         selectedLobby.setLobbyGameStarted(true);
     }
 

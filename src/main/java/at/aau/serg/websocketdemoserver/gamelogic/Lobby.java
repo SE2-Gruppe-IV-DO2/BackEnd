@@ -1,19 +1,24 @@
 package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import at.aau.serg.websocketdemoserver.deckmanagement.Deck;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Lobby {
     @Getter
     private final List<Player> players = new ArrayList<>();
     @Getter
     private final String lobbyCode;
+    @Getter
+    private final static int MAX_ROUNDS = 5;
     @Getter
     @Setter
     private boolean lobbyGameStarted = false;
@@ -27,6 +32,11 @@ public class Lobby {
     private LinkedHashMap<String, Card> lastPlayedCardPerPlayer;
     @Getter
     private int indexOfActivePlayer = -1;
+    @Getter
+    @Setter
+    private Map<String, HashMap<Integer, Integer>> playerPoints;
+    @Getter
+    private int currentRound = 1;
 
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
@@ -128,6 +138,43 @@ public class Lobby {
 
     public boolean isCurrentTrickDone() {
         return (currentTrick.size() == players.size());
+    }
+
+    public boolean isRoundFinished() {
+        for (Player player : players) {
+            if (!player.getCardsInHand().isEmpty() || player.isPlayerDead()) {
+                return false;
+            }
+        }
+        calculateAndSetRoundPoints();
+        return true;
+    }
+
+    public void createPointBoard() {
+        playerPoints = new HashMap<>();
+        for (Player player : players) {
+            playerPoints.put(player.getPlayerName(), new HashMap<>());
+        }
+    }
+
+    public void calculateAndSetRoundPoints() {
+        for (Player player : players) {
+            Map<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
+            if (player.isPlayerDead()) {
+                roundPoints.put(currentRound, -3);
+            } else {
+                roundPoints.put(currentRound, getLowestCardValueSum(player));
+            }
+        }
+        currentRound++;
+    }
+
+    private int getLowestCardValueSum(Player player) {
+        int sum = 0;
+        for (Map.Entry<CardType, Integer> entry : player.getClaimedTricks().entrySet()) {
+            sum += entry.getValue();
+        }
+        return sum;
     }
 
     public void addCardToTrick(String playerId, Card card) {
