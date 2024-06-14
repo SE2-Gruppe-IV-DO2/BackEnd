@@ -122,8 +122,11 @@ public class WebSocketBrokerController {
     }
 
     private void sendActivePlayerMessage(String lobbyCode) throws Exception {
-        String activePlayerId = lobbyManager.getActivePlayerForLobby(lobbyCode);
-        messagingTemplate.convertAndSend("/topic/active_player_changed", activePlayerId);
+        Player activePlayer = lobbyManager.getActivePlayerForLobby(lobbyCode);
+        ActivePlayerMessage message = new ActivePlayerMessage();
+        message.setActivePlayerId(activePlayer.getPlayerID());
+        message.setActivePlayerName(activePlayer.getPlayerName());
+        messagingTemplate.convertAndSend("/topic/active_player_changed", message);
     }
 
     private void sendPlayerJoinedLobbyMessage(String playerName) {
