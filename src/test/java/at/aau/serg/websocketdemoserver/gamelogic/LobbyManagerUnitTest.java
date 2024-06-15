@@ -93,6 +93,7 @@ public class LobbyManagerUnitTest {
         for (Lobby lobby : lobbies) {
             if (lobby.getLobbyCode().equals(lobbyCode)) {
                 assertTrue(lobby.getPlayerIDs().contains(playerID));
+                assertTrue(lobby.getPlayerNames().contains(playerName));
             }
         }
     }
