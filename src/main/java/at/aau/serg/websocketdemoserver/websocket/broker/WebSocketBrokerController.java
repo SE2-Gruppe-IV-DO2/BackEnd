@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
 
 @Controller
 public class WebSocketBrokerController {
@@ -44,6 +47,15 @@ public class WebSocketBrokerController {
         lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
         sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName());
         return joinLobbyRequest.getLobbyCode();
+    }
+
+    @MessageMapping("/get_players_in_lobby")
+    @SendTo("/topic/players_in_lobby")
+    public String getPlayersInLobby(GetPlayersInLobbyRequest playersInLobbyRequest) throws Exception {
+        List<String> playerNames = lobbyManager.getPlayerNamesForLobby(playersInLobbyRequest.getLobbyCode());
+        GetPlayersInLobbyMessage playersInLobbyMessage = new GetPlayersInLobbyMessage();
+        playersInLobbyMessage.setPlayerNames(playerNames);
+        return objectMapper.writeValueAsString(playersInLobbyMessage);
     }
 
     @MessageMapping("/deal_new_round")

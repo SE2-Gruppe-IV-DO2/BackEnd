@@ -49,6 +49,9 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_CREATE_LOBBY = "/app/create_new_lobby";
     private final String WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE = "/topic/lobby-created";
 
+    private final String WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY = "/app/get_players_in_lobby";
+    private final String WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY_RESPONSE = "/topic/players_in_lobby";
+
     private final String WEBSOCKET_TOPIC_JOIN_LOBBY = "/app/join_lobby";
     private final String WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE = "/topic/lobby-joined";
     private final String WEBSOCKET_TOPIC_PLAYER_JOINED_LOBBY_RESPONSE = "/topic/player_joined_lobby";
@@ -204,6 +207,47 @@ class WebSocketBrokerIntegrationTest {
         assertEquals(joinLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
 
         assertEquals(playerJoinedResponse, userNameJoin);
+    }
+
+    @Test
+    public void testGetPlayersInLobby() throws Exception {
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE);
+
+        // send a message to the server
+        String userID = "TEST_USER_ID";
+        String userName = "TEST_USER_NAME";
+
+        JSONObject payload = new JSONObject();
+        payload.put("userID", userID);
+        payload.put("userName", userName);
+
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
+
+        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(createLobbyResponse).isNotEmpty();
+        assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
+
+        StompSession sessionJoin = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
+        initStompSession(WEBSOCKET_TOPIC_PLAYER_JOINED_LOBBY_RESPONSE);
+
+        String userIDJoin = "TEST_USER_ID_2";
+        String userNameJoin = "TEST_USER_NAME_2";
+
+        JSONObject joinLobbyPayload = new JSONObject();
+        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
+        joinLobbyPayload.put("userID", userIDJoin);
+        joinLobbyPayload.put("userName", userNameJoin);
+
+        sessionJoin.send(WEBSOCKET_TOPIC_JOIN_LOBBY, joinLobbyPayload);
+
+        StompSession sessionPlayersInLobby = initStompSession(WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY_RESPONSE);
+
+        JSONObject getLobbyPlayersRequest = new JSONObject();
+        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
+        sessionPlayersInLobby.send(WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY, getLobbyPlayersRequest);
+
+        String playersResponse = messages.poll(1, TimeUnit.SECONDS);
+        assertThat(playersResponse).isNotEmpty();
     }
 
 

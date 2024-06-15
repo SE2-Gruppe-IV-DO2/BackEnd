@@ -140,4 +140,9 @@ public class LobbyManager {
         Lobby lobby = getLobbyByCode(code);
         lobby.setGaiaHolderAsStartPlayer();
     }
+
+    public List<String> getPlayerNamesForLobby(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        return lobby.getPlayerNames();
+    }
 }
