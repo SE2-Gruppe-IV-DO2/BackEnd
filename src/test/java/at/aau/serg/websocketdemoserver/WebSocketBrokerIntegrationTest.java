@@ -227,23 +227,9 @@ class WebSocketBrokerIntegrationTest {
         assertThat(createLobbyResponse).isNotEmpty();
         assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
 
-        StompSession sessionJoin = initStompSession(WEBSOCKET_TOPIC_JOIN_LOBBY_RESPONSE);
-        initStompSession(WEBSOCKET_TOPIC_PLAYER_JOINED_LOBBY_RESPONSE);
-
-        String userIDJoin = "TEST_USER_ID_2";
-        String userNameJoin = "TEST_USER_NAME_2";
-
-        JSONObject joinLobbyPayload = new JSONObject();
-        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
-        joinLobbyPayload.put("userID", userIDJoin);
-        joinLobbyPayload.put("userName", userNameJoin);
-
-        sessionJoin.send(WEBSOCKET_TOPIC_JOIN_LOBBY, joinLobbyPayload);
-
         StompSession sessionPlayersInLobby = initStompSession(WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY_RESPONSE);
-
         JSONObject getLobbyPlayersRequest = new JSONObject();
-        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
+        getLobbyPlayersRequest.put("lobbyCode", createLobbyResponse);
         sessionPlayersInLobby.send(WEBSOCKET_TOPIC_GET_PLAYERS_IN_LOBBY, getLobbyPlayersRequest);
 
         String playersResponse = messages.poll(1, TimeUnit.SECONDS);

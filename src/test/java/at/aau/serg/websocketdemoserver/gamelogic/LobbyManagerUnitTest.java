@@ -99,6 +99,16 @@ public class LobbyManagerUnitTest {
     }
 
     @Test
+    public void testGetPlayerNames() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        String playerID = "user1";
+        String playerName = "USER_NAME";
+
+        lobbyManager.addPlayerToLobby(lobbyCode, playerID, playerName);
+        assertTrue(lobbyManager.getPlayerNamesForLobby(lobbyCode).contains(playerName));
+    }
+
+    @Test
     public void testAddUserToNonexistentLobby() {
         String lobbyCode = "lobby1";
         String userID = "user1";

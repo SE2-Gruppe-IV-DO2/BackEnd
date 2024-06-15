@@ -54,6 +54,7 @@ public class WebSocketBrokerController {
     public String getPlayersInLobby(GetPlayersInLobbyRequest playersInLobbyRequest) throws Exception {
         List<String> playerNames = lobbyManager.getPlayerNamesForLobby(playersInLobbyRequest.getLobbyCode());
         GetPlayersInLobbyMessage playersInLobbyMessage = new GetPlayersInLobbyMessage();
+        playersInLobbyMessage.setLobbyCode(playersInLobbyRequest.getLobbyCode());
         playersInLobbyMessage.setPlayerNames(playerNames);
         return objectMapper.writeValueAsString(playersInLobbyMessage);
     }
