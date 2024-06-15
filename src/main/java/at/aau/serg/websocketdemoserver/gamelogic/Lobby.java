@@ -70,6 +70,16 @@ public class Lobby {
         return playerIDs;
     }
 
+    public List<String> getPlayerNames() {
+        List<String> playerNames = new ArrayList<>();
+
+        for (Player player : players) {
+            playerNames.add(player.getPlayerName());
+        }
+
+        return playerNames;
+    }
+
     public Player getPlayerByID(String playerID) {
         for (Player player : players) {
             if (player.getPlayerID().equals(playerID)) {

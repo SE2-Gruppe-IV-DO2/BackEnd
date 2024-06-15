@@ -93,8 +93,19 @@ public class LobbyManagerUnitTest {
         for (Lobby lobby : lobbies) {
             if (lobby.getLobbyCode().equals(lobbyCode)) {
                 assertTrue(lobby.getPlayerIDs().contains(playerID));
+                assertTrue(lobby.getPlayerNames().contains(playerName));
             }
         }
+    }
+
+    @Test
+    public void testGetPlayerNames() throws Exception {
+        String lobbyCode = lobbyManager.createLobby();
+        String playerID = "user1";
+        String playerName = "USER_NAME";
+
+        lobbyManager.addPlayerToLobby(lobbyCode, playerID, playerName);
+        assertTrue(lobbyManager.getPlayerNamesForLobby(lobbyCode).contains(playerName));
     }
 
     @Test

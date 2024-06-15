@@ -7,7 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -359,5 +361,17 @@ public class LobbyUnitTest {
         expected.get("test3").put(1,1);
 
         Assertions.assertEquals(expected, lobby.getPlayerPoints());
+    }
+
+    @Test
+    void testGetPlayerNames() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        List<String> playerNames = lobby.getPlayerNames();
+        assertEquals(playerNames.get(0), "test1");
+        assertEquals(playerNames.get(1), "test2");
+        assertEquals(playerNames.get(2), "test3");
     }
 }
