@@ -152,11 +152,10 @@ public class Lobby {
 
     public boolean isRoundFinished() {
         for (Player player : players) {
-            if (!player.getCardsInHand().isEmpty() || player.isPlayerDead()) {
+            if (!player.getCardsInHand().isEmpty()) {
                 return false;
             }
         }
-        calculateAndSetRoundPoints();
         return true;
     }
 
@@ -167,16 +166,25 @@ public class Lobby {
         }
     }
 
+    public void endRound() {
+        calculateAndSetRoundPoints();
+        for (Player player : players) {
+            player.getCardsInHand().clear();
+            player.getClaimedTricks().clear();
+        }
+        currentRound++;
+    }
+
     public void calculateAndSetRoundPoints() {
         for (Player player : players) {
-            Map<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
+            HashMap<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
             if (player.isPlayerDead()) {
                 roundPoints.put(currentRound, -3);
             } else {
                 roundPoints.put(currentRound, getLowestCardValueSum(player));
             }
+            playerPoints.put(player.getPlayerName(), roundPoints);
         }
-        currentRound++;
     }
 
     private int getLowestCardValueSum(Player player) {

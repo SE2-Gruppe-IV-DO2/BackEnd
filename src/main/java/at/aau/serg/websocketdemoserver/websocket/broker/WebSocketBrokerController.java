@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
@@ -99,7 +98,7 @@ public class WebSocketBrokerController {
             sendActivePlayerMessage(playCardRequest.getLobbyCode());
 
             if (currentLobby.isRoundFinished()) {
-                currentLobby.calculateAndSetRoundPoints();
+                currentLobby.endRound();
                 endRoundForLobby(playCardRequest.getLobbyCode());
 
                 // Muss erst nach dem Abrechnen der Schummelanschuldigung erfolgen
@@ -118,8 +117,6 @@ public class WebSocketBrokerController {
 
         PointsResponse pointsResponse = new PointsResponse();
         pointsResponse.setPlayerPoints(targetLobby.getPlayerPoints());
-
-        System.out.println(pointsResponse.getPlayerPoints().toString());
 
         try {
             messagingTemplate.convertAndSend("/topic/points/" + lobbyCode, objectMapper.writeValueAsString(pointsResponse));

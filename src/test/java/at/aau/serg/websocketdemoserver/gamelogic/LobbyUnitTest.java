@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -359,6 +358,8 @@ public class LobbyUnitTest {
         expected.get("test2").put(1,1);
         expected.put("test3", new HashMap<>());
         expected.get("test3").put(1,1);
+
+        System.out.println(lobby.getPlayerPoints().toString());
 
         Assertions.assertEquals(expected, lobby.getPlayerPoints());
     }
