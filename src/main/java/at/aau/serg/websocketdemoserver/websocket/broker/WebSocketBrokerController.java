@@ -31,9 +31,9 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/create_new_lobby")
-    @SendTo("/topic/lobby-created")
     public void createNewLobby(LobbyCreationRequest creationRequest) throws Exception {
         String newlyCreatedLobbyCode = lobbyManager.createLobby();
+        System.out.println(creationRequest.toString());
         lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, creationRequest.getUserID(), creationRequest.getUserName());
         messagingTemplate.convertAndSend("/topic/lobby-created/" + creationRequest.getUserID(), newlyCreatedLobbyCode);
     }

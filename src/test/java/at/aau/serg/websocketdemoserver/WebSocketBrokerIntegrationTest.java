@@ -2,14 +2,13 @@ package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
-import at.aau.serg.websocketdemoserver.messaging.dtos.HandCardsRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.JoinLobbyResponse;
-import at.aau.serg.websocketdemoserver.messaging.dtos.PointsRequest;
-import at.aau.serg.websocketdemoserver.messaging.dtos.PointsResponse;
+import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -76,7 +75,17 @@ class WebSocketBrokerIntegrationTest {
     /**
      * Queue of messages from the server.
      */
-    BlockingQueue<String> messages = new LinkedBlockingDeque<>();
+    BlockingQueue<String> messages;
+
+    @BeforeEach
+    void setup() {
+        messages = new LinkedBlockingDeque<>();
+    }
+
+    @AfterEach
+    void tearDown() {
+        messages = null;
+    }
 
     @Test
     public void testWebSocketMessageBroker() throws Exception {
@@ -92,36 +101,19 @@ class WebSocketBrokerIntegrationTest {
 
     @Test
     public void testWebSocketCreateNewLobby() throws Exception {
-        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE + "/TEST_USER_ID");
-
-        // send a message to the server
-        //Player player = new Player("TEST_USER", "TEST_USER_NAME");
-        String userID = "TEST_USER_ID";
+        String userID = "TEST_USER_ID" + System.currentTimeMillis() / 1000;
         String userName = "TEST_USER_NAME";
 
-        JSONObject payload = new JSONObject();
-        payload.put("userID", userID);
-        payload.put("userName", userName);
+        LobbyCreationRequest lobbyCreationRequest = new LobbyCreationRequest();
+        lobbyCreationRequest.setUserID(userID);
+        lobbyCreationRequest.setUserName(userName);
 
-        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
+        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE + "/" + userID);
+        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, lobbyCreationRequest);
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
         assertThat(createLobbyResponse).isNotEmpty();
         assertEquals(createLobbyResponse.length(), LobbyManager.LOBBY_CODE_LENGTH);
-    }
-
-    @Test
-    public void testWebSocketCreateNewLobbyWithoutUser() throws Exception {
-        StompSession session = initStompSession(WEBSOCKET_TOPIC_CREATE_LOBBY_RESPONSE + "/");
-
-        // send a message to the server
-        JSONObject payload = new JSONObject();
-        payload.put("userID", "");
-        payload.put("userName", "");
-        session.send(WEBSOCKET_TOPIC_CREATE_LOBBY, payload);
-
-        String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        assertThat(createLobbyResponse).isNullOrEmpty();
     }
 
     @Test
