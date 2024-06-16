@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -330,8 +331,11 @@ public class LobbyUnitTest {
 
         Map<String, HashMap<Integer, Integer>> expected = new HashMap<>();
         expected.put("test1", new HashMap<>());
+        expected.get("test1").put(-1, 0);
         expected.put("test2", new HashMap<>());
+        expected.get("test2").put(-1, 0);
         expected.put("test3", new HashMap<>());
+        expected.get("test3").put(-1, 0);
 
         lobby.createPointBoard();
 
@@ -354,10 +358,13 @@ public class LobbyUnitTest {
         Map<String, HashMap<Integer, Integer>> expected = new HashMap<>();
         expected.put("test1", new HashMap<>());
         expected.get("test1").put(1,1);
+        expected.get("test1").put(-1,0);
         expected.put("test2", new HashMap<>());
         expected.get("test2").put(1,1);
+        expected.get("test2").put(-1,0);
         expected.put("test3", new HashMap<>());
         expected.get("test3").put(1,1);
+        expected.get("test3").put(-1,0);
 
         System.out.println(lobby.getPlayerPoints().toString());
 
@@ -374,5 +381,26 @@ public class LobbyUnitTest {
         assertEquals(playerNames.get(0), "test1");
         assertEquals(playerNames.get(1), "test2");
         assertEquals(playerNames.get(2), "test3");
+    }
+
+    @Test
+    void testEndRound() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        List<Player> players = lobby.getPlayers();
+        lobby.createPointBoard();
+
+        lobby.getDeck().dealNewRound(players);
+
+        lobby.endRound();
+
+        Assertions.assertTrue(players.get(0).getCardsInHand().isEmpty());
+        Assertions.assertTrue(players.get(1).getCardsInHand().isEmpty());
+        Assertions.assertTrue(players.get(2).getCardsInHand().isEmpty());
+
+        Assertions.assertTrue(players.get(0).getClaimedTricks().isEmpty());
+        Assertions.assertTrue(players.get(1).getClaimedTricks().isEmpty());
+        Assertions.assertTrue(players.get(2).getClaimedTricks().isEmpty());
     }
 }

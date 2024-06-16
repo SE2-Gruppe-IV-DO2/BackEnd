@@ -163,6 +163,7 @@ public class Lobby {
         playerPoints = new HashMap<>();
         for (Player player : players) {
             playerPoints.put(player.getPlayerName(), new HashMap<>());
+            playerPoints.get(player.getPlayerName()).put(-1, 0);
         }
     }
 

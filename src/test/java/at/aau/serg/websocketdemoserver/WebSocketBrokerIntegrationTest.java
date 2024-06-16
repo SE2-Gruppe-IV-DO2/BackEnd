@@ -398,8 +398,11 @@ class WebSocketBrokerIntegrationTest {
         PointsResponse pointsResponse = new ObjectMapper().readValue(response, PointsResponse.class);
         Map<String, Map<Integer, Integer>> expected = new HashMap<>();
         expected.put("TEST_USER_NAME", new HashMap<>());
+        expected.get("TEST_USER_NAME").put(-1, 0);
         expected.put("TEST_USER_NAME_2", new HashMap<>());
+        expected.get("TEST_USER_NAME_2").put(-1, 0);
         expected.put("TEST_USER_NAME_3", new HashMap<>());
+        expected.get("TEST_USER_NAME_3").put(-1, 0);
 
         Assertions.assertEquals(expected, pointsResponse.getPlayerPoints());
     }
