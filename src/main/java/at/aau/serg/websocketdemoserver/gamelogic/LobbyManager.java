@@ -64,6 +64,7 @@ public class LobbyManager {
         if (selectedLobby.isLobbyGameStarted())
             throw new IllegalStateException("Could not start game for Lobby. Game has already started!");
 
+        selectedLobby.createPointBoard();
         selectedLobby.setLobbyGameStarted(true);
     }
 
@@ -130,14 +131,18 @@ public class LobbyManager {
         lobby.endCurrentPlayersTurn();
     }
 
-    public String getActivePlayerForLobby(String code) throws Exception {
+    public Player getActivePlayerForLobby(String code) throws Exception {
         Lobby lobby = getLobbyByCode(code);
-        Player player = lobby.getActivePlayer();
-        return player == null ? "" : player.getPlayerID();
+        return lobby.getActivePlayer();
     }
 
     public void setGaiaPlayerAsStartPlayer(String code) throws Exception {
         Lobby lobby = getLobbyByCode(code);
         lobby.setGaiaHolderAsStartPlayer();
+    }
+
+    public List<String> getPlayerNamesForLobby(String code) throws Exception {
+        Lobby lobby = getLobbyByCode(code);
+        return lobby.getPlayerNames();
     }
 }

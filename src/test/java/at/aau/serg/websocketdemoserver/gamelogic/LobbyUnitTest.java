@@ -2,10 +2,15 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -285,4 +290,117 @@ public class LobbyUnitTest {
         assertThrows(IllegalStateException.class, () -> lobby.setPlayerAsActivePlayer("player4"));
     }
 
+    @Test
+    void isRoundFinishedSuccess() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        Map<String, HashMap<Integer, Integer>> playerPoints = new HashMap<>();
+        playerPoints.put("test1", new HashMap<>());
+        playerPoints.put("test2", new HashMap<>());
+        playerPoints.put("test3", new HashMap<>());
+
+        lobby.setPlayerPoints(playerPoints);
+
+        lobby.getDeck().dealNewRound(lobby.getPlayers());
+
+        for (Player p : lobby.getPlayers()) {
+            p.getCardsInHand().clear();
+        }
+
+        Assertions.assertTrue(lobby.isRoundFinished());
+    }
+
+    @Test
+    void isRoundFinishedFailure() {
+        lobby.addPlayer(new Player("player1", "test"));
+        lobby.addPlayer(new Player("player2", "test"));
+        lobby.addPlayer(new Player("player3", "test"));
+
+        lobby.getDeck().dealNewRound(lobby.getPlayers());
+
+        Assertions.assertFalse(lobby.isRoundFinished());
+    }
+
+    @Test
+    void testCreatePointBoard() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        Map<String, HashMap<Integer, Integer>> expected = new HashMap<>();
+        expected.put("test1", new HashMap<>());
+        expected.get("test1").put(-1, 0);
+        expected.put("test2", new HashMap<>());
+        expected.get("test2").put(-1, 0);
+        expected.put("test3", new HashMap<>());
+        expected.get("test3").put(-1, 0);
+
+        lobby.createPointBoard();
+
+        Assertions.assertEquals(expected, lobby.getPlayerPoints());
+    }
+
+    @Test
+    void testSetPointsBoard() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        for (Player p : lobby.getPlayers()) {
+            p.getClaimedTricks().put(CardType.GREEN, 1);
+        }
+
+        lobby.createPointBoard();
+        lobby.calculateAndSetRoundPoints();
+
+        Map<String, HashMap<Integer, Integer>> expected = new HashMap<>();
+        expected.put("test1", new HashMap<>());
+        expected.get("test1").put(1,1);
+        expected.get("test1").put(-1,0);
+        expected.put("test2", new HashMap<>());
+        expected.get("test2").put(1,1);
+        expected.get("test2").put(-1,0);
+        expected.put("test3", new HashMap<>());
+        expected.get("test3").put(1,1);
+        expected.get("test3").put(-1,0);
+
+        System.out.println(lobby.getPlayerPoints().toString());
+
+        Assertions.assertEquals(expected, lobby.getPlayerPoints());
+    }
+
+    @Test
+    void testGetPlayerNames() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        List<String> playerNames = lobby.getPlayerNames();
+        assertEquals(playerNames.get(0), "test1");
+        assertEquals(playerNames.get(1), "test2");
+        assertEquals(playerNames.get(2), "test3");
+    }
+
+    @Test
+    void testEndRound() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        List<Player> players = lobby.getPlayers();
+        lobby.createPointBoard();
+
+        lobby.getDeck().dealNewRound(players);
+
+        lobby.endRound();
+
+        Assertions.assertTrue(players.get(0).getCardsInHand().isEmpty());
+        Assertions.assertTrue(players.get(1).getCardsInHand().isEmpty());
+        Assertions.assertTrue(players.get(2).getCardsInHand().isEmpty());
+
+        Assertions.assertTrue(players.get(0).getClaimedTricks().isEmpty());
+        Assertions.assertTrue(players.get(1).getClaimedTricks().isEmpty());
+        Assertions.assertTrue(players.get(2).getClaimedTricks().isEmpty());
+    }
 }

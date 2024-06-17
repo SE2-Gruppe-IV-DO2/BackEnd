@@ -20,8 +20,7 @@ public class Player {
     List<Card> cardsInHand = new ArrayList<>();
 
     HashMap<CardType, Integer> claimedTricks = new HashMap<>();
-    boolean cheatedDuringLastTrick = false;
-    private int minusPointsForCheatingOrWrongAccusation = 0;
+    boolean cheatedInCurrentRound = false;
 
     public Player(String playerID, String playerName) {
         this.playerID = playerID;
@@ -59,13 +58,11 @@ public class Player {
         if (dutyCardColor != null && !dutyCardColor.equals(playedColor)) {
             for (Card handCard : cardsInHand) {
                 if (handCard.getColor().equals(dutyCardColor)) {
-                    cheatedDuringLastTrick = true;
+                    cheatedInCurrentRound = true;
                     break;
                 }
             }
         }
-        else
-            cheatedDuringLastTrick = false;
     }
 
     public boolean hasGaiaCard() {
