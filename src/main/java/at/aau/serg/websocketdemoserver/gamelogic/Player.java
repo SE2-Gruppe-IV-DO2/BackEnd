@@ -11,8 +11,6 @@ import java.util.*;
 @Getter
 public class Player {
 
-    private final Integer MINUS_POINTS_FOR_CHEATING = 5;
-
     private final String playerID;
     @Setter
     private String playerName;
@@ -134,9 +132,5 @@ public class Player {
         }
 
         return maxCardType;
-    }
-
-    public void removePointsForCheatingOrWrongAccusation(){
-        this.minusPointsForCheatingOrWrongAccusation -= MINUS_POINTS_FOR_CHEATING;
     }
 }

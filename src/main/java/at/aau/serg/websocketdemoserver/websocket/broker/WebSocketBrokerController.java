@@ -129,13 +129,10 @@ public class WebSocketBrokerController {
         Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
         Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
 
-        if (accusedPlayer.isCheatedDuringLastTrick()){
-            accusedPlayer.removePointsForCheatingOrWrongAccusation();
-            cheatAccusationRequest.setCorrectAccusation(true);
-        } else {
-            player.removePointsForCheatingOrWrongAccusation();
-            cheatAccusationRequest.setCorrectAccusation(false);
-        }
+        currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
+        currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
+
+        cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
 
         return objectMapper.writeValueAsString(cheatAccusationRequest);
     }

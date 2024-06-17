@@ -372,6 +372,21 @@ public class LobbyUnitTest {
     }
 
     @Test
+    void testAdjustmentAfterCheating() {
+        lobby.addPlayer(new Player("player1", "test1"));
+
+        lobby.createPointBoard();
+
+        lobby.adjustPointsAfterCheatingAccusation(lobby.getPlayers().get(0), true);
+
+        Map<String, HashMap<Integer, Integer>> expected = new HashMap<>();
+        expected.put("test1", new HashMap<>());
+        expected.get("test1").put(-1, 5);
+
+        Assertions.assertEquals(expected, lobby.getPlayerPoints());
+    }
+
+    @Test
     void testGetPlayerNames() {
         lobby.addPlayer(new Player("player1", "test1"));
         lobby.addPlayer(new Player("player2", "test2"));

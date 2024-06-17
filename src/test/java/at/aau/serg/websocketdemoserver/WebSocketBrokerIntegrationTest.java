@@ -1,9 +1,12 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
+import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -70,6 +73,9 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_TOPIC_GET_POINTS = "/app/get_points";
     private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points/";
+
+    private final String WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING = "/app/accuse_player_of_cheating";
+    private final String WEBSOCKET_TOPIC_ACCUSATION_RESULT = "/topic/accusation_result";
 
 
     /**
@@ -407,6 +413,30 @@ class WebSocketBrokerIntegrationTest {
         expected.get("TEST_USER_NAME_3").put(-1, 0);
 
         Assertions.assertEquals(expected, pointsResponse.getPlayerPoints());
+    }
+
+    @Test
+    void testCheatAccusationEndpoint() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
+
+        CheatAccusationRequest cheatAccusationRequest = new CheatAccusationRequest();
+        cheatAccusationRequest.setLobbyCode(lobbyCode);
+        cheatAccusationRequest.setUserID(lobby.getPlayers().get(0).getPlayerID());
+        cheatAccusationRequest.setAccusedUserId(lobby.getPlayers().get(1).getPlayerID());
+
+        StompSession cheatAccusationSession = initStompSession(WEBSOCKET_TOPIC_ACCUSATION_RESULT);
+        cheatAccusationSession.send(WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING, cheatAccusationRequest);
+
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        CheatAccusationRequest cheatAccusationResponse = new ObjectMapper().readValue(response,
+                CheatAccusationRequest.class);
+
+        assertFalse(cheatAccusationResponse.isCorrectAccusation());
     }
 
     /**
