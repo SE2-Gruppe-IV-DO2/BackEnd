@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class WebSocketBrokerController {
@@ -59,6 +60,10 @@ public class WebSocketBrokerController {
         GetPlayersInLobbyMessage playersInLobbyMessage = new GetPlayersInLobbyMessage();
         playersInLobbyMessage.setLobbyCode(playersInLobbyRequest.getLobbyCode());
         playersInLobbyMessage.setPlayerNames(playerNames);
+
+        Map<String, String> playerNamesAndIds = lobbyManager.getPlayerNamesWithIdsForLobby(playersInLobbyRequest.getLobbyCode());
+        playersInLobbyMessage.setPlayerNamesAndIds(playerNamesAndIds);
+
         messagingTemplate.convertAndSend("/topic/players_in_lobby/" + playersInLobbyRequest.getLobbyCode(), objectMapper.writeValueAsString(playersInLobbyMessage));
     }
 
@@ -120,6 +125,28 @@ public class WebSocketBrokerController {
         }
     }
 
+    @MessageMapping("/accuse_player_of_cheating")
+    @SendTo("/topic/accusation_result")
+    public String accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
+
+        Lobby currentLobby = lobbyManager.getLobbyByCode(cheatAccusationRequest.getLobbyCode());
+
+        Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
+
+        if (cheatAccusationRequest.getAccusedUserId().isEmpty()) {
+            return objectMapper.writeValueAsString(cheatAccusationRequest);
+        }
+
+        Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
+
+        currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
+        currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
+
+        cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
+
+        return objectMapper.writeValueAsString(cheatAccusationRequest);
+    }
+
     @MessageMapping("/get_points")
     public void getPoints(PointsRequest pointsRequest) {
         String lobbyCode = pointsRequest.getLobbyCode();
@@ -136,7 +163,7 @@ public class WebSocketBrokerController {
     }
 
     private void endRoundForLobby(String lobbyCode) {
-        messagingTemplate.convertAndSend("/topic/round_ended" + lobbyCode, "Round ended");
+        messagingTemplate.convertAndSend("/topic/round_ended/" + lobbyCode, "Round ended");
     }
 
     private void endTurnForActivePlayer(String lobbyCode) throws Exception {

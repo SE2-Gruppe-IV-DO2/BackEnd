@@ -24,6 +24,7 @@ public class Lobby {
     private boolean lobbyGameStarted = false;
     public static final int MAX_PLAYER_COUNT = 5;
     public static final int MIN_PLAYER_FOR_GAME_START_COUNT = 3;
+    private final Integer CHEATING_ACCUSATION_POINTS_ADJUSTMENT = 5;
     @Getter
     public Deck deck;
     @Getter
@@ -185,6 +186,16 @@ public class Lobby {
                 roundPoints.put(currentRound, getLowestCardValueSum(player));
             }
             playerPoints.put(player.getPlayerName(), roundPoints);
+        }
+    }
+
+    public void adjustPointsAfterCheatingAccusation(Player player, boolean correctAccusation) {
+        HashMap<Integer, Integer> roundPoints = playerPoints.get(player.getPlayerName());
+        if (correctAccusation) {
+            roundPoints.put(-1, roundPoints.get(-1) + CHEATING_ACCUSATION_POINTS_ADJUSTMENT);
+        }
+        else {
+            roundPoints.put(-1, roundPoints.get(-1) - CHEATING_ACCUSATION_POINTS_ADJUSTMENT);
         }
     }
 

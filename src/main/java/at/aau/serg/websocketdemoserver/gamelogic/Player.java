@@ -10,6 +10,7 @@ import java.util.*;
 
 @Getter
 public class Player {
+
     private final String playerID;
     @Setter
     private String playerName;

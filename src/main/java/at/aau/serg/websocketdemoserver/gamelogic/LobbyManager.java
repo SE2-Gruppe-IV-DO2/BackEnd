@@ -4,6 +4,7 @@ import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.messaging.dtos.CardPlayRequest;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LobbyManager {
     private static LobbyManager instance;
@@ -144,5 +145,11 @@ public class LobbyManager {
     public List<String> getPlayerNamesForLobby(String code) throws Exception {
         Lobby lobby = getLobbyByCode(code);
         return lobby.getPlayerNames();
+    }
+
+    public Map<String, String> getPlayerNamesWithIdsForLobby(String code)  throws Exception{
+        Lobby lobby = getLobbyByCode(code);
+        return lobby.getPlayerIDs().stream()
+                .collect(Collectors.toMap(id -> id, id -> lobby.getPlayerByID(id).getPlayerName()));
     }
 }
