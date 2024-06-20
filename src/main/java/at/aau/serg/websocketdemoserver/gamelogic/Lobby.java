@@ -212,6 +212,14 @@ public class Lobby {
         getLastPlayedCardPerPlayer().put(playerId, card);
     }
 
+    public HashMap<String, Map<CardType, Integer>> getPlayerTricks() {
+        HashMap<String, Map<CardType, Integer>> playerTricks = new HashMap<>();
+        for (Player player : players) {
+            playerTricks.put(player.getPlayerName(), player.getClaimedTricks());
+        }
+        return playerTricks;
+    }
+
     public void clearTrick() {
         currentTrick.clear();
         lastPlayedCardPerPlayer.clear();
