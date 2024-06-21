@@ -108,7 +108,6 @@ public class WebSocketBrokerController {
         if (currentLobby.isCurrentTrickDone()) {
             Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
             sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName(), currentLobby.getLobbyCode());
-            sendPlayerTricks(currentLobby.getLobbyCode());
 
             sendActivePlayerMessage(playCardRequest.getLobbyCode());
 
@@ -168,13 +167,20 @@ public class WebSocketBrokerController {
         PlayerNamesResponse playerNamesResponse = new PlayerNamesResponse();
         playerNamesResponse.setPlayerNames(targetLobby.getPlayerNames());
 
-        System.out.println(playerNamesResponse.getPlayerNames().toString());
-
         try {
             messagingTemplate.convertAndSend("/topic/player_names/" + getPlayerNamesRequest.getLobbyCode(), objectMapper.writeValueAsString(playerNamesResponse));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @MessageMapping("get-player-tricks")
+    public void sendPlayerTricks(String lobbyCode) {
+        PlayerTrickResponse playerTrickResponse = new PlayerTrickResponse();
+        Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
+        playerTrickResponse.setPlayerTricks(targetLobby.getPlayerTricks());
+
+        messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, playerTrickResponse);
     }
 
     private void endRoundForLobby(String lobbyCode) {
@@ -203,13 +209,5 @@ public class WebSocketBrokerController {
         trickMessage.setWinningPlayerId(playerId);
         trickMessage.setWinningPlayerName(playerName);
         messagingTemplate.convertAndSend("/topic/trick_won/" + lobbyCode, trickMessage);
-    }
-
-    private void sendPlayerTricks(String lobbyCode) {
-        PlayerTrickResponse playerTrickResponse = new PlayerTrickResponse();
-        Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
-        playerTrickResponse.setPlayerTricks(targetLobby.getPlayerTricks());
-
-        messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, playerTrickResponse);
     }
 }

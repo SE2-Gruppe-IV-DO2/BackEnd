@@ -174,6 +174,7 @@ public class Lobby {
             player.getCardsInHand().clear();
             player.getClaimedTricks().clear();
         }
+        deck.setRoundDealt(false);
         currentRound++;
     }
 

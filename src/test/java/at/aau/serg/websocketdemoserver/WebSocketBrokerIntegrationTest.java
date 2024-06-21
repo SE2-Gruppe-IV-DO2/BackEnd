@@ -257,7 +257,6 @@ class WebSocketBrokerIntegrationTest {
         StompSession dealNewRoundSession = initStompSession(WEBSOCKET_TOPIC_DEAL_NEW_ROUND_RESPONSE + "/" + lobbyCode + "/TEST_USER_ID");
         dealNewRoundSession.send(WEBSOCKET_TOPIC_DEAL_NEW_ROUND, payload);
         String dealNewRoundResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("dealNewRoundResponse:" + dealNewRoundResponse);
         assert dealNewRoundResponse != null;
     }
 
@@ -276,7 +275,6 @@ class WebSocketBrokerIntegrationTest {
         lobbyCreationSession.send(WEBSOCKET_TOPIC_CREATE_LOBBY, jsonObject);
 
         String createLobbyResponse = messages.poll(1, TimeUnit.SECONDS);
-        System.out.println("createLobbyResponse:" + createLobbyResponse);
 
         assert createLobbyResponse != null;
         StompSession startGameSession = initStompSession(WEBSOCKET_TOPIC_START_GAME_FOR_LOBBY_RESPONSE + "/" + createLobbyResponse);
@@ -400,7 +398,6 @@ class WebSocketBrokerIntegrationTest {
         getPointsSession.send(WEBSOCKET_TOPIC_GET_POINTS, pointsRequest);
 
         String response = messages.poll(5, TimeUnit.SECONDS);
-        System.out.println("Received response: " + response);
         Assertions.assertNotNull(response);
 
         PointsResponse pointsResponse = new ObjectMapper().readValue(response, PointsResponse.class);
