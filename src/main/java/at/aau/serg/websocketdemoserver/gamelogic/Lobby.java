@@ -174,6 +174,7 @@ public class Lobby {
             player.getCardsInHand().clear();
             player.getClaimedTricks().clear();
         }
+        deck.setRoundDealt(false);
         currentRound++;
     }
 
@@ -210,6 +211,14 @@ public class Lobby {
     public void addCardToTrick(String playerId, Card card) {
         getCurrentTrick().add(card);
         getLastPlayedCardPerPlayer().put(playerId, card);
+    }
+
+    public HashMap<String, Map<CardType, Integer>> getPlayerTricks() {
+        HashMap<String, Map<CardType, Integer>> playerTricks = new HashMap<>();
+        for (Player player : players) {
+            playerTricks.put(player.getPlayerName(), player.getClaimedTricks());
+        }
+        return playerTricks;
     }
 
     public void clearTrick() {

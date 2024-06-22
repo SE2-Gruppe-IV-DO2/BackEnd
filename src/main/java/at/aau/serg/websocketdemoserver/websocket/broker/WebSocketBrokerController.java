@@ -34,7 +34,6 @@ public class WebSocketBrokerController {
     @MessageMapping("/create_new_lobby")
     public void createNewLobby(LobbyCreationRequest creationRequest) throws Exception {
         String newlyCreatedLobbyCode = lobbyManager.createLobby();
-        System.out.println(creationRequest.toString());
         lobbyManager.addPlayerToLobby(newlyCreatedLobbyCode, creationRequest.getUserID(), creationRequest.getUserName());
         messagingTemplate.convertAndSend("/topic/lobby-created/" + creationRequest.getUserID(), newlyCreatedLobbyCode);
     }
@@ -157,6 +156,34 @@ public class WebSocketBrokerController {
 
         try {
             messagingTemplate.convertAndSend("/topic/points/" + lobbyCode, objectMapper.writeValueAsString(pointsResponse));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @MessageMapping("/get-player-names")
+    public void getPlayerNames(GetPlayerNamesRequest getPlayerNamesRequest) {
+        Lobby targetLobby = lobbyManager.getLobbyByID(getPlayerNamesRequest.getLobbyCode());
+        PlayerNamesResponse playerNamesResponse = new PlayerNamesResponse();
+        playerNamesResponse.setPlayerNames(targetLobby.getPlayerNames());
+
+        try {
+            messagingTemplate.convertAndSend("/topic/player_names/" + getPlayerNamesRequest.getLobbyCode(), objectMapper.writeValueAsString(playerNamesResponse));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @MessageMapping("/get-player-tricks")
+    public void sendPlayerTricks(String lobbyCode) {
+        PlayerTrickResponse playerTrickResponse = new PlayerTrickResponse();
+        Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
+        playerTrickResponse.setPlayerTricks(targetLobby.getPlayerTricks());
+
+        System.out.println(playerTrickResponse.getPlayerTricks().toString());
+
+        try {
+            messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, objectMapper.writeValueAsString(playerTrickResponse));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

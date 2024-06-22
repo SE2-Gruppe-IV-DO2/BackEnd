@@ -2,6 +2,7 @@ package at.aau.serg.websocketdemoserver.deckmanagement;
 
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -10,6 +11,7 @@ import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 public class Deck {
 
     static final int MAX_CARD_VALUE = 12;
+    @Setter @Getter
     boolean roundDealt = false;
     @Getter
     List<Card> deck;
