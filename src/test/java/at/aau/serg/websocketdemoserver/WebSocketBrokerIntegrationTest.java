@@ -1,6 +1,7 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
+import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
 import at.aau.serg.websocketdemoserver.gamelogic.Lobby;
 import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
@@ -77,6 +78,11 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING = "/app/accuse_player_of_cheating";
     private final String WEBSOCKET_TOPIC_ACCUSATION_RESULT = "/topic/accusation_result";
 
+    private final String WEBSOCKET_GET_PLAYER_NAMES = "/app/get-player-names";
+    private final String WEBSOCKET_GET_PLAYER_NAME_RESPONSE = "/topic/player_names/";
+
+    private final String WEBSOCKET_GET_PLAYER_TRICKS_RESPONSE = "/topic/player_tricks/";
+    private final String WEBSOCKET_GET_PLAYER_TRICKS = "/app/get-player-tricks";
 
     /**
      * Queue of messages from the server.
@@ -434,6 +440,54 @@ class WebSocketBrokerIntegrationTest {
                 CheatAccusationRequest.class);
 
         assertFalse(cheatAccusationResponse.isCorrectAccusation());
+    }
+
+    @Test
+    void testGetPlayerNames() throws Exception{
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
+        List<Player> expectedPlayers = lobby.getPlayers();
+
+        List<String> expected = new ArrayList<>();
+
+        expectedPlayers.forEach(player -> expected.add(player.getPlayerName()));
+
+        GetPlayerNamesRequest getPlayerNamesRequest = new GetPlayerNamesRequest();
+        getPlayerNamesRequest.setLobbyCode(lobbyCode);
+
+        StompSession getPlayerNamesSession = initStompSession(WEBSOCKET_GET_PLAYER_NAME_RESPONSE + lobbyCode);
+        getPlayerNamesSession.send(WEBSOCKET_GET_PLAYER_NAMES, getPlayerNamesRequest);
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        assertNotNull(response);
+
+        PlayerNamesResponse playerNamesResponse = new ObjectMapper().readValue(response, PlayerNamesResponse.class);
+        List<String> actual = playerNamesResponse.getPlayerNames();
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void testPlayerTricks() throws Exception{
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+        Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
+
+        HashMap<String, Map<CardType, Integer>> expected = lobby.getPlayerTricks();
+
+        StompSession getPlayerTricksSession = initStompSession(WEBSOCKET_GET_PLAYER_TRICKS_RESPONSE + lobbyCode);
+        getPlayerTricksSession.send(WEBSOCKET_GET_PLAYER_TRICKS, lobbyCode);
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        assertNotNull(response);
+
+        PlayerTrickResponse playerTricksResponse = new ObjectMapper().readValue(response, PlayerTrickResponse.class);
+
+        Assertions.assertEquals(expected, playerTricksResponse.getPlayerTricks());
     }
 
     /**

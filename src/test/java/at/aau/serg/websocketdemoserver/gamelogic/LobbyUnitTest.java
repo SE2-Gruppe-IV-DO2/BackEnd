@@ -2,6 +2,7 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
+import net.bytebuddy.implementation.auxiliary.MethodCallProxy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,11 @@ public class LobbyUnitTest {
             lobby.addPlayer(new Player("player" + i, "TEST"));
         }
         assertThrows(IllegalStateException.class, () -> lobby.addPlayer(new Player("player5", "TEST")));
+    }
+
+    @Test
+    void testAddPlayerThrowsIllegalArgumentExceptionPlayerIDIsEmpty() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lobby.addPlayer(new Player("", "TEST")));
     }
 
     @Test
@@ -417,5 +423,23 @@ public class LobbyUnitTest {
         Assertions.assertTrue(players.get(0).getClaimedTricks().isEmpty());
         Assertions.assertTrue(players.get(1).getClaimedTricks().isEmpty());
         Assertions.assertTrue(players.get(2).getClaimedTricks().isEmpty());
+    }
+
+    @Test
+    void testGetPlayerTricks() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        HashMap<CardType, Integer> playerTricks = new HashMap<>();
+        playerTricks.put(CardType.GREEN, 1);
+        playerTricks.put(CardType.YELLOW, 1);
+        lobby.getPlayers().forEach(player -> player.setClaimedTricks(playerTricks));
+        HashMap<String, Map<CardType, Integer>> expected = new HashMap<>();
+        expected.put("test1", playerTricks);
+        expected.put("test2", playerTricks);
+        expected.put("test3", playerTricks);
+
+        HashMap<String, Map<CardType, Integer>> actualTricks = lobby.getPlayerTricks();
+        Assertions.assertEquals(expected, actualTricks);
     }
 }

@@ -16,7 +16,7 @@ public class Player {
     private String playerName;
     @Setter
     List<Card> cardsInHand = new ArrayList<>();
-
+    @Setter
     HashMap<CardType, Integer> claimedTricks = new HashMap<>();
     boolean cheatedInCurrentRound = false;
 

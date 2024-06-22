@@ -174,13 +174,19 @@ public class WebSocketBrokerController {
         }
     }
 
-    @MessageMapping("get-player-tricks")
+    @MessageMapping("/get-player-tricks")
     public void sendPlayerTricks(String lobbyCode) {
         PlayerTrickResponse playerTrickResponse = new PlayerTrickResponse();
         Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
         playerTrickResponse.setPlayerTricks(targetLobby.getPlayerTricks());
 
-        messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, playerTrickResponse);
+        System.out.println(playerTrickResponse.getPlayerTricks().toString());
+
+        try {
+            messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, objectMapper.writeValueAsString(playerTrickResponse));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void endRoundForLobby(String lobbyCode) {
