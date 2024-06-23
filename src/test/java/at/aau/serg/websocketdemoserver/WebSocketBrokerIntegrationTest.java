@@ -310,7 +310,7 @@ class WebSocketBrokerIntegrationTest {
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playCardResponse);
+        Assertions.assertNotNull(playCardResponse);
     }
 
     @Test
@@ -370,7 +370,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         String playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerHasWonTrickMessage);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
@@ -385,7 +385,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerHasWonTrickMessage);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
