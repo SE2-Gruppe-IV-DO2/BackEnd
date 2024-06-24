@@ -152,7 +152,7 @@ class WebSocketBrokerIntegrationTest {
         String userNameJoin = "TEST_USER_NAME_2";
 
         JSONObject joinLobbyPayload = new JSONObject();
-        joinLobbyPayload.put("lobbyCode", createLobbyResponse);
+        joinLobbyPayload.put("lobbyCode", createLobbyResponse.toLowerCase());
         joinLobbyPayload.put("userID", userIDJoin);
         joinLobbyPayload.put("userName", userNameJoin);
 
