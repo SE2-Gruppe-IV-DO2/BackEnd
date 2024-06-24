@@ -153,6 +153,9 @@ public class Lobby {
 
     public boolean isRoundFinished() {
         for (Player player : players) {
+            if (player.isPlayerDead()) {
+                return true;
+            }
             if (!player.getCardsInHand().isEmpty()) {
                 return false;
             }

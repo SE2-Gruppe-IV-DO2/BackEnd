@@ -102,7 +102,7 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
 
-        messagingTemplate.convertAndSend("/topic/card_played/" + playCardRequest.getLobbyCode(), cardPlayedRequest);
+        messagingTemplate.convertAndSend("/topic/card_played/" + playCardRequest.getLobbyCode(), objectMapper.writeValueAsString(cardPlayedRequest));
 
         Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
@@ -179,8 +179,6 @@ public class WebSocketBrokerController {
         PlayerTrickResponse playerTrickResponse = new PlayerTrickResponse();
         Lobby targetLobby = lobbyManager.getLobbyByID(lobbyCode);
         playerTrickResponse.setPlayerTricks(targetLobby.getPlayerTricks());
-
-        System.out.println(playerTrickResponse.getPlayerTricks().toString());
 
         try {
             messagingTemplate.convertAndSend("/topic/player_tricks/" + lobbyCode, objectMapper.writeValueAsString(playerTrickResponse));

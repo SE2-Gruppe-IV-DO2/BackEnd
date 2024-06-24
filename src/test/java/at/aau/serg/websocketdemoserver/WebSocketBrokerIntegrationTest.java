@@ -7,7 +7,6 @@ import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -310,7 +309,7 @@ class WebSocketBrokerIntegrationTest {
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
         String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playCardResponse);
+        Assertions.assertNotNull(playCardResponse);
     }
 
     @Test
@@ -370,7 +369,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         String playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerHasWonTrickMessage);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
@@ -385,7 +384,7 @@ class WebSocketBrokerIntegrationTest {
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
 
         playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
-        Assertions.assertNull(playerHasWonTrickMessage);
+        Assertions.assertNotNull(playerHasWonTrickMessage);
 
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
