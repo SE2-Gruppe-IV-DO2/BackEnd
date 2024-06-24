@@ -75,7 +75,7 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_TOPIC_GET_POINTS_RESPONSE = "/topic/points/";
 
     private final String WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING = "/app/accuse_player_of_cheating";
-    private final String WEBSOCKET_TOPIC_ACCUSATION_RESULT = "/topic/accusation_result";
+    private final String WEBSOCKET_TOPIC_ACCUSATION_RESULT = "/topic/accusation_result/";
 
     private final String WEBSOCKET_GET_PLAYER_NAMES = "/app/get-player-names";
     private final String WEBSOCKET_GET_PLAYER_NAME_RESPONSE = "/topic/player_names/";
@@ -430,15 +430,38 @@ class WebSocketBrokerIntegrationTest {
         cheatAccusationRequest.setUserID(lobby.getPlayers().get(0).getPlayerID());
         cheatAccusationRequest.setAccusedUserId(lobby.getPlayers().get(1).getPlayerID());
 
-        StompSession cheatAccusationSession = initStompSession(WEBSOCKET_TOPIC_ACCUSATION_RESULT);
+        StompSession cheatAccusationSession = initStompSession(WEBSOCKET_TOPIC_ACCUSATION_RESULT + lobby.getPlayers().get(0).getPlayerID());
         cheatAccusationSession.send(WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING, cheatAccusationRequest);
-
 
         String response = messages.poll(5, TimeUnit.SECONDS);
         CheatAccusationRequest cheatAccusationResponse = new ObjectMapper().readValue(response,
                 CheatAccusationRequest.class);
 
         assertFalse(cheatAccusationResponse.isCorrectAccusation());
+        assertEquals(1, lobby.getNumberOfCheatAccusations());
+
+        cheatAccusationSession = initStompSession(WEBSOCKET_TOPIC_ACCUSATION_RESULT + lobby.getPlayers().get(1).getPlayerID());
+        cheatAccusationSession.send(WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING, cheatAccusationRequest);
+
+        response = messages.poll(5, TimeUnit.SECONDS);
+        cheatAccusationResponse = new ObjectMapper().readValue(response,
+                CheatAccusationRequest.class);
+
+        assertFalse(cheatAccusationResponse.isCorrectAccusation());
+        System.out.println("currentLobby.getPlayers().stream().count():" + lobby.getPlayers().stream().count());
+        assertEquals(2, lobby.getNumberOfCheatAccusations());
+
+        cheatAccusationSession = initStompSession(WEBSOCKET_TOPIC_ACCUSATION_RESULT + lobby.getPlayers().get(1).getPlayerID());
+        cheatAccusationSession.send(WEBSOCKET_ACCUSE_PLAYER_OF_CHEATING, cheatAccusationRequest);
+
+        response = messages.poll(5, TimeUnit.SECONDS);
+        cheatAccusationResponse = new ObjectMapper().readValue(response,
+                CheatAccusationRequest.class);
+
+        assertFalse(cheatAccusationResponse.isCorrectAccusation());
+        System.out.println("currentLobby.getPlayers().stream().count():" + lobby.getPlayers().stream().count());
+        assertEquals(0, lobby.getNumberOfCheatAccusations());
+
     }
 
     @Test

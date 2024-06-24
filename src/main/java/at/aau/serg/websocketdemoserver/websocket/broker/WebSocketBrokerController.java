@@ -114,9 +114,6 @@ public class WebSocketBrokerController {
             if (currentLobby.isRoundFinished()) {
                 currentLobby.endRound();
                 endRoundForLobby(playCardRequest.getLobbyCode());
-
-                // Muss erst nach dem Abrechnen der Schummelanschuldigung erfolgen
-                currentLobby.resetCheatAttempts();
             }
         }
         else {
@@ -125,25 +122,29 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/accuse_player_of_cheating")
-    @SendTo("/topic/accusation_result")
-    public String accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
-
+    public void accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
         Lobby currentLobby = lobbyManager.getLobbyByCode(cheatAccusationRequest.getLobbyCode());
 
         Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
+        currentLobby.setNumberOfCheatAccusations(currentLobby.getNumberOfCheatAccusations() + 1);
 
         if (cheatAccusationRequest.getAccusedUserId().isEmpty()) {
-            return objectMapper.writeValueAsString(cheatAccusationRequest);
+            messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
+        }
+        else {
+            Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
+
+            currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
+            currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
+
+            cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
+
+            messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
         }
 
-        Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
-
-        currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
-        currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
-
-        cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
-
-        return objectMapper.writeValueAsString(cheatAccusationRequest);
+        if (currentLobby.getNumberOfCheatAccusations() == currentLobby.getPlayers().stream().count()) {
+            currentLobby.resetCheatAttempts();
+        }
     }
 
     @MessageMapping("/get_points")
