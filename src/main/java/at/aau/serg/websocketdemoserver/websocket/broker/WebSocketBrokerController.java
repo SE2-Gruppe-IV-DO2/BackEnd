@@ -125,25 +125,24 @@ public class WebSocketBrokerController {
     }
 
     @MessageMapping("/accuse_player_of_cheating")
-    @SendTo("/topic/accusation_result")
-    public String accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
-
+    public void accusePlayerOfCheating(CheatAccusationRequest cheatAccusationRequest) throws Exception {
         Lobby currentLobby = lobbyManager.getLobbyByCode(cheatAccusationRequest.getLobbyCode());
 
         Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
 
         if (cheatAccusationRequest.getAccusedUserId().isEmpty()) {
-            return objectMapper.writeValueAsString(cheatAccusationRequest);
+            messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
         }
+        else {
+            Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
 
-        Player accusedPlayer = currentLobby.getPlayerByID(cheatAccusationRequest.getAccusedUserId());
+            currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
+            currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
 
-        currentLobby.adjustPointsAfterCheatingAccusation(player, accusedPlayer.isCheatedInCurrentRound());
-        currentLobby.adjustPointsAfterCheatingAccusation(accusedPlayer, !accusedPlayer.isCheatedInCurrentRound());
+            cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
 
-        cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
-
-        return objectMapper.writeValueAsString(cheatAccusationRequest);
+            messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
+        }
     }
 
     @MessageMapping("/get_points")
