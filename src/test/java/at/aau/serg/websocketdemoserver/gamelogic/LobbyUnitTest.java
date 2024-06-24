@@ -2,13 +2,11 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
-import net.bytebuddy.implementation.auxiliary.MethodCallProxy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -441,5 +439,24 @@ public class LobbyUnitTest {
 
         HashMap<String, Map<CardType, Integer>> actualTricks = lobby.getPlayerTricks();
         Assertions.assertEquals(expected, actualTricks);
+    }
+
+    @Test
+    void testPlayerIsDeadRoundEnd() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        List<Player> players = lobby.getPlayers();
+        lobby.deck.dealNewRound(players);
+        HashMap<CardType, Integer> playerTricks = new HashMap<>();
+        playerTricks.put(CardType.GREEN, 1);
+        playerTricks.put(CardType.YELLOW, 1);
+        playerTricks.put(CardType.BLUE, 1);
+        playerTricks.put(CardType.RED, 1);
+        playerTricks.put(CardType.PURPLE, 1);
+
+        lobby.getPlayerByID("player1").setClaimedTricks(playerTricks);
+
+        Assertions.assertTrue(lobby.isRoundFinished());
     }
 }

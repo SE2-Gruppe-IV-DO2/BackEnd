@@ -102,7 +102,7 @@ public class WebSocketBrokerController {
         cardPlayedRequest.setColor(card.getColor());
         cardPlayedRequest.setValue(String.valueOf(card.getValue()));
 
-        messagingTemplate.convertAndSend("/topic/card_played/" + playCardRequest.getLobbyCode(), cardPlayedRequest);
+        messagingTemplate.convertAndSend("/topic/card_played/" + playCardRequest.getLobbyCode(), objectMapper.writeValueAsString(cardPlayedRequest));
 
         Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
