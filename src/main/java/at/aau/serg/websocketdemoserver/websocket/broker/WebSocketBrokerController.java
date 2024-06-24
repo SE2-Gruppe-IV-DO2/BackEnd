@@ -106,6 +106,8 @@ public class WebSocketBrokerController {
 
         Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
+            Thread.sleep(2000);
+
             Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
             sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName(), currentLobby.getLobbyCode());
 
