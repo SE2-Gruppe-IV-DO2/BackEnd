@@ -155,15 +155,16 @@ public class Lobby {
     }
 
     public boolean isRoundFinished() {
+        boolean roundFinished = true;
         for (Player player : players) {
             if (player.isPlayerDead()) {
                 return true;
             }
             if (!player.getCardsInHand().isEmpty()) {
-                return false;
+                roundFinished = false;
             }
         }
-        return true;
+        return roundFinished;
     }
 
     public void createPointBoard() {
