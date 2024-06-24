@@ -40,14 +40,15 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/join_lobby")
     public void joinLobby(JoinLobbyRequest joinLobbyRequest) {
-        lobbyManager.addPlayerToLobby(joinLobbyRequest.getLobbyCode(), joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
-        sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName(), joinLobbyRequest.getLobbyCode());
+        String lobbyCode = joinLobbyRequest.getLobbyCode().toUpperCase();
+        lobbyManager.addPlayerToLobby(lobbyCode, joinLobbyRequest.getUserID(), joinLobbyRequest.getUserName());
+        sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName(), lobbyCode);
 
         JoinLobbyResponse joinLobbyResponse = new JoinLobbyResponse();
-        joinLobbyResponse.setLobbyCode(joinLobbyRequest.getLobbyCode());
+        joinLobbyResponse.setLobbyCode(lobbyCode);
 
         try {
-            messagingTemplate.convertAndSend("/topic/lobby-joined/" + joinLobbyRequest.getLobbyCode() + "/" + joinLobbyRequest.getUserID(), objectMapper.writeValueAsString(joinLobbyResponse));
+            messagingTemplate.convertAndSend("/topic/lobby-joined/" + lobbyCode + "/" + joinLobbyRequest.getUserID(), objectMapper.writeValueAsString(joinLobbyResponse));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -55,12 +56,14 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/get_players_in_lobby")
     public void getPlayersInLobby(GetPlayersInLobbyRequest playersInLobbyRequest) throws Exception {
-        List<String> playerNames = lobbyManager.getPlayerNamesForLobby(playersInLobbyRequest.getLobbyCode());
+        String lobbyCode = playersInLobbyRequest.getLobbyCode().toUpperCase();
+
+        List<String> playerNames = lobbyManager.getPlayerNamesForLobby(lobbyCode);
         GetPlayersInLobbyMessage playersInLobbyMessage = new GetPlayersInLobbyMessage();
-        playersInLobbyMessage.setLobbyCode(playersInLobbyRequest.getLobbyCode());
+        playersInLobbyMessage.setLobbyCode(lobbyCode);
         playersInLobbyMessage.setPlayerNames(playerNames);
 
-        Map<String, String> playerNamesAndIds = lobbyManager.getPlayerNamesWithIdsForLobby(playersInLobbyRequest.getLobbyCode());
+        Map<String, String> playerNamesAndIds = lobbyManager.getPlayerNamesWithIdsForLobby(lobbyCode);
         playersInLobbyMessage.setPlayerNamesAndIds(playerNamesAndIds);
 
         messagingTemplate.convertAndSend("/topic/players_in_lobby/" + playersInLobbyRequest.getLobbyCode(), objectMapper.writeValueAsString(playersInLobbyMessage));
@@ -82,13 +85,14 @@ public class WebSocketBrokerController {
 
     @MessageMapping("/start_game_for_lobby")
     public void startGameForLobby(StartGameRequest startGameRequest) {
-        lobbyManager.startGameForLobby(startGameRequest.getLobbyCode());
+        String lobbyCode = startGameRequest.getLobbyCode();
+        lobbyManager.startGameForLobby(lobbyCode);
 
         StartGameResponse startGameResponse = new StartGameResponse();
         startGameResponse.setResponse("Game started!");
 
         try {
-            messagingTemplate.convertAndSend("/topic/game_for_lobby_started/" + startGameRequest.getLobbyCode(), objectMapper.writeValueAsString(startGameResponse));
+            messagingTemplate.convertAndSend("/topic/game_for_lobby_started/" + lobbyCode, objectMapper.writeValueAsString(startGameResponse));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -106,6 +110,8 @@ public class WebSocketBrokerController {
 
         Lobby currentLobby = lobbyManager.getLobbyByID(playCardRequest.getLobbyCode());
         if (currentLobby.isCurrentTrickDone()) {
+            Thread.sleep(2000);
+
             Player winningPlayer = currentLobby.evaluateAndHandoutTrick();
             sendPlayerWonTrickMessage(winningPlayer.getPlayerID(), winningPlayer.getPlayerName(), currentLobby.getLobbyCode());
 
