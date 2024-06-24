@@ -44,7 +44,8 @@ public class WebSocketBrokerController {
         sendPlayerJoinedLobbyMessage(joinLobbyRequest.getUserName(), joinLobbyRequest.getLobbyCode());
 
         JoinLobbyResponse joinLobbyResponse = new JoinLobbyResponse();
-        joinLobbyResponse.setLobbyCode(joinLobbyRequest.getLobbyCode());
+        String lobbyCode = joinLobbyRequest.getLobbyCode().toUpperCase();
+        joinLobbyResponse.setLobbyCode(lobbyCode);
 
         try {
             messagingTemplate.convertAndSend("/topic/lobby-joined/" + joinLobbyRequest.getLobbyCode() + "/" + joinLobbyRequest.getUserID(), objectMapper.writeValueAsString(joinLobbyResponse));
