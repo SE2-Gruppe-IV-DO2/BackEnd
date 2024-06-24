@@ -38,6 +38,9 @@ public class Lobby {
     private Map<String, HashMap<Integer, Integer>> playerPoints;
     @Getter
     private int currentRound = 1;
+    @Getter
+    @Setter
+    private int numberOfCheatAccusations = 0;
 
     public Lobby(String lobbyCode) {
         if (!isValid(lobbyCode)) {
@@ -245,5 +248,6 @@ public class Lobby {
         for (Player player : players) {
             player.cheatedInCurrentRound = false;
         }
+        numberOfCheatAccusations = 0;
     }
 }

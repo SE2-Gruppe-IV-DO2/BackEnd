@@ -114,9 +114,6 @@ public class WebSocketBrokerController {
             if (currentLobby.isRoundFinished()) {
                 currentLobby.endRound();
                 endRoundForLobby(playCardRequest.getLobbyCode());
-
-                // Muss erst nach dem Abrechnen der Schummelanschuldigung erfolgen
-                currentLobby.resetCheatAttempts();
             }
         }
         else {
@@ -129,6 +126,7 @@ public class WebSocketBrokerController {
         Lobby currentLobby = lobbyManager.getLobbyByCode(cheatAccusationRequest.getLobbyCode());
 
         Player player = currentLobby.getPlayerByID(cheatAccusationRequest.getUserID());
+        currentLobby.setNumberOfCheatAccusations(currentLobby.getNumberOfCheatAccusations() + 1);
 
         if (cheatAccusationRequest.getAccusedUserId().isEmpty()) {
             messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
@@ -142,6 +140,10 @@ public class WebSocketBrokerController {
             cheatAccusationRequest.setCorrectAccusation(accusedPlayer.isCheatedInCurrentRound());
 
             messagingTemplate.convertAndSend("/topic/accusation_result/" + player.getPlayerID(), objectMapper.writeValueAsString(cheatAccusationRequest));
+        }
+
+        if (currentLobby.getNumberOfCheatAccusations() == currentLobby.getPlayers().stream().count()) {
+            currentLobby.resetCheatAttempts();
         }
     }
 
