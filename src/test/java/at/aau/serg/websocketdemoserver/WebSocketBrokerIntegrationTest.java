@@ -512,6 +512,33 @@ class WebSocketBrokerIntegrationTest {
         Assertions.assertEquals(expected, playerTricksResponse.getPlayerTricks());
     }
 
+    @Test
+    void testPlayCardGameFinished() throws Exception{
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
+        lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
+        lobby.setCurrentRound(5);
+        Player player = lobby.getPlayers().get(0);
+        Card c = new Card(CardType.BLUE, 5);
+        player.getCardsInHand().add(c);
+
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setColor(c.getColor());
+        cardPlayRequest.setValue(String.valueOf(c.getValue()));
+
+        StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
+
+        String response = messages.poll(5, TimeUnit.SECONDS);
+        assertNotNull(response);
+
+    }
+
     /**
      * @return The Stomp session for the WebSocket connection (Stomp - WebSocket is comparable to HTTP - TCP).
      */

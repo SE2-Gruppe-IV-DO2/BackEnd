@@ -502,7 +502,6 @@ public class LobbyUnitTest {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-
         Assertions.assertNull(lobby.getActivePlayer());
     }
 }
