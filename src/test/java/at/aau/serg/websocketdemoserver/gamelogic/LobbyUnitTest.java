@@ -459,4 +459,65 @@ public class LobbyUnitTest {
 
         Assertions.assertTrue(lobby.isRoundFinished());
     }
+
+    @Test
+    void testGameFinishedSuccess() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        lobby.setCurrentRound(5);
+
+        Assertions.assertTrue(lobby.isGameFinished());
+    }
+
+    @Test
+    void testGetMaxRounds() {
+        Assertions.assertEquals(5, Lobby.getMAX_ROUNDS());
+    }
+
+    @Test
+    void testIsLobbyReadSuccess() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+
+        Assertions.assertTrue(lobby.isReadyToStart());
+    }
+
+    @Test
+    void testIsReadyToStartFailure() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+
+        Assertions.assertFalse(lobby.isReadyToStart());
+    }
+
+    @Test
+    void testGetActivePlayerNull() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        try {
+            setPrivateField(lobby, "indexOfActivePlayer", -1);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        Assertions.assertNull(lobby.getActivePlayer());
+    }
+
+    @Test
+    void testEndRoundGameFinished() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        List<Player> players = lobby.getPlayers();
+        lobby.createPointBoard();
+        lobby.getDeck().dealNewRound(players);
+
+        lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
+        lobby.setCurrentRound(5);
+
+        lobby.endRound();
+        Assertions.assertTrue(lobby.isGameFinished());
+    }
 }

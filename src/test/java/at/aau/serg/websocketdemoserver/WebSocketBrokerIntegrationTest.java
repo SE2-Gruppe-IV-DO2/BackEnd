@@ -7,6 +7,7 @@ import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
+import at.aau.serg.websocketdemoserver.websocket.broker.WebSocketBrokerController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -82,6 +84,8 @@ class WebSocketBrokerIntegrationTest {
 
     private final String WEBSOCKET_GET_PLAYER_TRICKS_RESPONSE = "/topic/player_tricks/";
     private final String WEBSOCKET_GET_PLAYER_TRICKS = "/app/get-player-tricks";
+
+    private final String WEBSOCKET_GAME_END_RESPONSE = "/topic/game_ended/";
 
     /**
      * Queue of messages from the server.
@@ -510,6 +514,45 @@ class WebSocketBrokerIntegrationTest {
         PlayerTrickResponse playerTricksResponse = new ObjectMapper().readValue(response, PlayerTrickResponse.class);
 
         Assertions.assertEquals(expected, playerTricksResponse.getPlayerTricks());
+    }
+
+    @Test
+    void testPlayCardGameFinished() throws Exception {
+        String lobbyCode = setUpLobby();
+        setUpTwoPlayerJoinLobby(lobbyCode);
+        setUpStartGame(lobbyCode);
+
+        Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
+        lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
+        lobby.setCurrentRound(5);
+
+        lobby.getCurrentTrick().add(new Card(CardType.YELLOW, 3));
+        lobby.getCurrentTrick().add(new Card(CardType.YELLOW, 2));
+
+        Player player = lobby.getPlayers().get(0);
+        Card c = new Card(CardType.BLUE, 5);
+        player.getCardsInHand().add(c);
+
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setColor(c.getColor());
+        cardPlayRequest.setValue(String.valueOf(c.getValue()));
+
+        StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
+
+        String cardPlayedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNotNull(cardPlayedResponse);
+
+        String playerWonTrickResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(playerWonTrickResponse);
+
+        String roundEndedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(roundEndedResponse);
+
+        String gameEndedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(gameEndedResponse);
     }
 
     /**
