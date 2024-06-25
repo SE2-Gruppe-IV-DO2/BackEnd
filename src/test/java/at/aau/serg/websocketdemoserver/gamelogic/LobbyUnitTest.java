@@ -459,4 +459,14 @@ public class LobbyUnitTest {
 
         Assertions.assertTrue(lobby.isRoundFinished());
     }
+
+    @Test
+    void testGameFinished() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        lobby.setCurrentRound(5);
+
+        Assertions.assertTrue(lobby.isGameFinished());
+    }
 }

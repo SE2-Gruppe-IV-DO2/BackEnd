@@ -36,7 +36,7 @@ public class Lobby {
     @Getter
     @Setter
     private Map<String, HashMap<Integer, Integer>> playerPoints;
-    @Getter
+    @Getter @Setter
     private int currentRound = 1;
     @Getter
     @Setter
@@ -167,6 +167,10 @@ public class Lobby {
         return roundFinished;
     }
 
+    public boolean isGameFinished() {
+        return currentRound == MAX_ROUNDS;
+    }
+
     public void createPointBoard() {
         playerPoints = new HashMap<>();
         for (Player player : players) {
@@ -181,8 +185,10 @@ public class Lobby {
             player.getCardsInHand().clear();
             player.getClaimedTricks().clear();
         }
-        deck.setRoundDealt(false);
-        currentRound++;
+        if (!isGameFinished()) {
+            deck.setRoundDealt(false);
+            currentRound++;
+        }
     }
 
     public void calculateAndSetRoundPoints() {

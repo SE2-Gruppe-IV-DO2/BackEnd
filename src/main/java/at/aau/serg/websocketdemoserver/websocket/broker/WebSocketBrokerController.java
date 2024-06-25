@@ -120,6 +120,9 @@ public class WebSocketBrokerController {
             if (currentLobby.isRoundFinished()) {
                 currentLobby.endRound();
                 endRoundForLobby(playCardRequest.getLobbyCode());
+                if (currentLobby.isGameFinished()) {
+                    endGameForLobby(playCardRequest.getLobbyCode());
+                }
             }
         }
         else {
@@ -220,5 +223,9 @@ public class WebSocketBrokerController {
         trickMessage.setWinningPlayerId(playerId);
         trickMessage.setWinningPlayerName(playerName);
         messagingTemplate.convertAndSend("/topic/trick_won/" + lobbyCode, trickMessage);
+    }
+
+    private void endGameForLobby(String lobbyCode) {
+        messagingTemplate.convertAndSend("/topic/game_ended/" + lobbyCode, "Game ended");
     }
 }
