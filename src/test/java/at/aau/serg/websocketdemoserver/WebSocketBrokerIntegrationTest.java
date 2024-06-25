@@ -7,6 +7,7 @@ import at.aau.serg.websocketdemoserver.gamelogic.LobbyManager;
 import at.aau.serg.websocketdemoserver.gamelogic.Player;
 import at.aau.serg.websocketdemoserver.messaging.dtos.*;
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
+import at.aau.serg.websocketdemoserver.websocket.broker.WebSocketBrokerController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -513,7 +515,7 @@ class WebSocketBrokerIntegrationTest {
     }
 
     @Test
-    void testPlayCardGameFinished() throws Exception{
+    void testPlayCardGameFinished() throws Exception {
         String lobbyCode = setUpLobby();
         setUpTwoPlayerJoinLobby(lobbyCode);
         setUpStartGame(lobbyCode);
@@ -521,6 +523,7 @@ class WebSocketBrokerIntegrationTest {
         Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
         lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
         lobby.setCurrentRound(5);
+
         Player player = lobby.getPlayers().get(0);
         Card c = new Card(CardType.BLUE, 5);
         player.getCardsInHand().add(c);
@@ -534,9 +537,17 @@ class WebSocketBrokerIntegrationTest {
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
 
-        String response = messages.poll(5, TimeUnit.SECONDS);
-        assertNotNull(response);
+        String cardPlayedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNotNull(cardPlayedResponse);
 
+        String playerWonTrickResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(playerWonTrickResponse);
+
+        String roundEndedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(roundEndedResponse);
+
+        String gameEndedResponse = messages.poll(5, TimeUnit.SECONDS);
+        assertNull(gameEndedResponse);
     }
 
     /**
