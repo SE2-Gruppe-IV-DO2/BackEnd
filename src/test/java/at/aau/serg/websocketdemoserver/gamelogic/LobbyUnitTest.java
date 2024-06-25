@@ -461,7 +461,7 @@ public class LobbyUnitTest {
     }
 
     @Test
-    void testGameFinished() {
+    void testGameFinishedSuccess() {
         lobby.addPlayer(new Player("player1", "test1"));
         lobby.addPlayer(new Player("player2", "test2"));
         lobby.addPlayer(new Player("player3", "test3"));
@@ -503,5 +503,21 @@ public class LobbyUnitTest {
             throw new RuntimeException(e);
         }
         Assertions.assertNull(lobby.getActivePlayer());
+    }
+
+    @Test
+    void testEndRoundGameFinished() {
+        lobby.addPlayer(new Player("player1", "test1"));
+        lobby.addPlayer(new Player("player2", "test2"));
+        lobby.addPlayer(new Player("player3", "test3"));
+        List<Player> players = lobby.getPlayers();
+        lobby.createPointBoard();
+        lobby.getDeck().dealNewRound(players);
+
+        lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
+        lobby.setCurrentRound(5);
+
+        lobby.endRound();
+        Assertions.assertTrue(lobby.isGameFinished());
     }
 }
