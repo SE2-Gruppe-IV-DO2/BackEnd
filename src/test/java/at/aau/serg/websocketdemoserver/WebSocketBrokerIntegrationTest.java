@@ -85,6 +85,8 @@ class WebSocketBrokerIntegrationTest {
     private final String WEBSOCKET_GET_PLAYER_TRICKS_RESPONSE = "/topic/player_tricks/";
     private final String WEBSOCKET_GET_PLAYER_TRICKS = "/app/get-player-tricks";
 
+    private final String WEBSOCKET_GAME_END_RESPONSE = "/topic/game_ended/";
+
     /**
      * Queue of messages from the server.
      */
@@ -523,6 +525,9 @@ class WebSocketBrokerIntegrationTest {
         Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
         lobby.getPlayers().forEach(player -> player.getCardsInHand().clear());
         lobby.setCurrentRound(5);
+
+        lobby.getCurrentTrick().add(new Card(CardType.YELLOW, 3));
+        lobby.getCurrentTrick().add(new Card(CardType.YELLOW, 2));
 
         Player player = lobby.getPlayers().get(0);
         Card c = new Card(CardType.BLUE, 5);
