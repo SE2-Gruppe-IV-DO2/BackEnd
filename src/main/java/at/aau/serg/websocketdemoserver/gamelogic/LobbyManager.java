@@ -116,12 +116,10 @@ public class LobbyManager {
         if (player == null) {
             throw new IllegalArgumentException("Player not found in the lobby: " + cardPlayRequest.getUserID());
         }
-        Card c = player.playCardForPlayer(cardPlayRequest.getName(), cardPlayRequest.getColor(), Integer.valueOf(cardPlayRequest.getValue()));
-        if (c == null) {
-            throw new IllegalArgumentException("Card not found in player's hand");
-        }
-        targetLobby.addCardToTrick(cardPlayRequest.getUserID(), c);
+        Card c = new Card(cardPlayRequest.getCardType(), cardPlayRequest.getColor(), cardPlayRequest.getValue());
+        player.playCardForPlayer(cardPlayRequest.getCardType().getName(), cardPlayRequest.getColor(), cardPlayRequest.getValue());
 
+        targetLobby.addCardToTrick(cardPlayRequest.getUserID(), c);
         player.updateCheatAttempt(targetLobby.getCurrentTrick(), cardPlayRequest.getColor());
 
         return c;

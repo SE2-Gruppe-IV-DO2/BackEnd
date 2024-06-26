@@ -304,14 +304,16 @@ class WebSocketBrokerIntegrationTest {
         List<Card> cardList = setUpDealNewRound(lobbyCode);
         Card card = cardList.get(0);
 
-        JSONObject payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
-        payload.put("color", card.getColor());
-        payload.put("value", String.valueOf(card.getValue()));
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setColor(card.getColor());
+        cardPlayRequest.setValue(card.getValue());
+        cardPlayRequest.setCardType(card.getCardType());
+
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
-        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
         String playCardResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNotNull(playCardResponse);
     }
@@ -325,15 +327,16 @@ class WebSocketBrokerIntegrationTest {
         List<Card> cardList = setUpDealNewRound(lobbyCode);
         Card card = cardList.get(0);
 
-        JSONObject payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
-        payload.put("color", card.getColor());
-        payload.put("value", card.getValue());
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setColor(card.getColor());
+        cardPlayRequest.setValue(card.getValue());
+        cardPlayRequest.setCardType(card.getCardType());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE);
-        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
         messages.poll(1, TimeUnit.SECONDS);
         String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
@@ -348,29 +351,33 @@ class WebSocketBrokerIntegrationTest {
         List<Card> cardList = setUpDealNewRound(lobbyCode);
         Card card = cardList.get(0);
 
-        JSONObject payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
-        payload.put("color", card.getColor());
-        payload.put("value", card.getValue());
+        CardPlayRequest cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setCardType(card.getCardType());
+        cardPlayRequest.setColor(card.getColor());
+        cardPlayRequest.setValue(card.getValue());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         initStompSession(WEBSOCKET_TOPIC_ACTIVE_PLAYER_CHANGED_RESPONSE + "/" + lobbyCode);
         initStompSession(WEBSOCKET_TOPIC_PLAYER_HAS_WON_TRICK);
-        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
         messages.poll(1, TimeUnit.SECONDS);
 
         String playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
 
-        payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
         card = cardList.get(1);
-        payload.put("color", card.getColor());
-        payload.put("value", card.getValue());
 
-        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setCardType(card.getCardType());
+        cardPlayRequest.setColor(card.getColor());
+        cardPlayRequest.setValue(card.getValue());
+
+
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
 
         String playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNotNull(playerHasWonTrickMessage);
@@ -378,14 +385,17 @@ class WebSocketBrokerIntegrationTest {
         playerChangedResponse = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNull(playerChangedResponse);
 
-        payload = new JSONObject();
-        payload.put("lobbyCode", lobbyCode);
-        payload.put("userID", "TEST_USER_ID");
         card = cardList.get(2);
-        payload.put("color", card.getColor());
-        payload.put("value", card.getValue());
 
-        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, payload);
+        cardPlayRequest = new CardPlayRequest();
+        cardPlayRequest.setLobbyCode(lobbyCode);
+        cardPlayRequest.setUserID("TEST_USER_ID");
+        cardPlayRequest.setCardType(card.getCardType());
+        cardPlayRequest.setColor(card.getColor());
+        cardPlayRequest.setValue(card.getValue());
+        cardPlayRequest.setCardType(card.getCardType());
+
+        playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);
 
         playerHasWonTrickMessage = messages.poll(1, TimeUnit.SECONDS);
         Assertions.assertNotNull(playerHasWonTrickMessage);
@@ -503,7 +513,7 @@ class WebSocketBrokerIntegrationTest {
         setUpStartGame(lobbyCode);
         Lobby lobby = LobbyManager.getInstance().getLobbyByCode(lobbyCode);
 
-        HashMap<String, Map<CardType, Integer>> expected = lobby.getPlayerTricks();
+        HashMap<String, List<Card>> expected = lobby.getPlayerTricks();
 
         StompSession getPlayerTricksSession = initStompSession(WEBSOCKET_GET_PLAYER_TRICKS_RESPONSE + lobbyCode);
         getPlayerTricksSession.send(WEBSOCKET_GET_PLAYER_TRICKS, lobbyCode);
@@ -537,7 +547,8 @@ class WebSocketBrokerIntegrationTest {
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID("TEST_USER_ID");
         cardPlayRequest.setColor(c.getColor());
-        cardPlayRequest.setValue(String.valueOf(c.getValue()));
+        cardPlayRequest.setValue(c.getValue());
+        cardPlayRequest.setCardType(c.getCardType());
 
         StompSession playCardSession = initStompSession(WEBSOCKET_TOPIC_CARD_PLAYED_RESPONSE + "/" + lobbyCode);
         playCardSession.send(WEBSOCKET_TOPIC_PLAY_CARD, cardPlayRequest);

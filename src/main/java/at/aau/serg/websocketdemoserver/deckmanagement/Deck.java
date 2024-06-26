@@ -76,14 +76,13 @@ public class Deck {
         for (String playerId : playedCards.keySet()){
             Card current = playedCards.get(playerId);
 
-            winningColor = winningColor.isEmpty() ? current.cardType.getColor() : winningColor;
+            winningColor = winningColor.isEmpty() ? current.getColor() : winningColor;
 
-            if (current.cardType.getColor().equals(winningColor) && current.value > currentHighestValue) {
+            if (current.getColor().equals(winningColor) && current.value > currentHighestValue) {
                 currentHighestValue = current.value;
                 winningPlayerId = playerId;
             }
         }
-
         return winningPlayerId;
     }
 }

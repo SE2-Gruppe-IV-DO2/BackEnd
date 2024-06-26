@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.util.*;
 
-
 @Getter
 public class Player {
 
@@ -17,7 +16,7 @@ public class Player {
     @Setter
     List<Card> cardsInHand = new ArrayList<>();
     @Setter
-    HashMap<CardType, Integer> claimedTricks = new HashMap<>();
+    List<Card> claimedTricks = new ArrayList<>();
     boolean cheatedInCurrentRound = false;
 
     public Player(String playerID, String playerName) {
@@ -33,7 +32,7 @@ public class Player {
                 return card;
             }
             // case of gaia, mistletoe, golden sickle
-            if (name.equals(card.getCardType().getName()) && value.equals(card.getValue())){
+            if (name.equals(card.getCardType().getName()) && value.equals(card.getValue())) {
                 iterator.remove();
                 card.setColor(color);
                 return card;
@@ -72,28 +71,27 @@ public class Player {
     }
 
     public boolean addClaimedTrick(List<Card> trickCards) {
-        HashMap<CardType, Integer> lowestCardsInTrick = new HashMap<>();
+        Map<String, Card> lowestCardsInTrick = new HashMap<>();
         int goldenSickleCounter = 0;
 
         for (Card trickCard : trickCards) {
-            CardType currentTrickCardType = trickCard.getCardType();
+            String currentTrickCardColor = trickCard.getColor();
             int currentTrickCardValue = trickCard.getValue();
 
-            if (currentTrickCardType.equals(CardType.GOLDEN_SICKLE))
+            if (trickCard.getCardType() == CardType.GOLDEN_SICKLE) {
                 goldenSickleCounter++;
-            else {
-                if (lowestCardsInTrick.get(currentTrickCardType) == null
-                        || currentTrickCardValue < lowestCardsInTrick.getOrDefault(currentTrickCardType, 0))
-                    lowestCardsInTrick.put(currentTrickCardType, currentTrickCardValue);
+            } else {
+                Card existingCard = lowestCardsInTrick.get(currentTrickCardColor);
+                if (existingCard == null || currentTrickCardValue < existingCard.getValue()) {
+                    lowestCardsInTrick.put(currentTrickCardColor, trickCard);
+                }
             }
         }
 
         // update player trick
-        updateClaimedTrickForCardType(CardType.GREEN, lowestCardsInTrick.get(CardType.GREEN));
-        updateClaimedTrickForCardType(CardType.RED, lowestCardsInTrick.get(CardType.RED));
-        updateClaimedTrickForCardType(CardType.PURPLE, lowestCardsInTrick.get(CardType.PURPLE));
-        updateClaimedTrickForCardType(CardType.BLUE, lowestCardsInTrick.get(CardType.BLUE));
-        updateClaimedTrickForCardType(CardType.YELLOW, lowestCardsInTrick.get(CardType.YELLOW));
+        for (Map.Entry<String, Card> entry : lowestCardsInTrick.entrySet()) {
+            updateClaimedTrickForColor(entry.getKey(), entry.getValue());
+        }
 
         // check for death
         boolean isPlayerDead = isPlayerDead();
@@ -101,36 +99,45 @@ public class Player {
         // check for GOLDEN_SICKLE and remove X colours
         if (!isPlayerDead && goldenSickleCounter > 0) {
             for (int i = 0; i < goldenSickleCounter; i++) {
-                CardType cardTypeToReset = getHighestValueClaimedTrickType();
-                claimedTricks.put(cardTypeToReset, 0);
+                Card cardToReset = getHighestValueClaimedTrickCard();
+                claimedTricks.removeIf(card -> card.getColor().equals(cardToReset.getColor()));
             }
         }
 
         return isPlayerDead;
     }
 
-    public void updateClaimedTrickForCardType(CardType cardType, Integer newValue) {
-        if (newValue != null && newValue > 0)
-            claimedTricks.put(cardType, newValue);
+    public void updateClaimedTrickForColor(String color, Card newCard) {
+        Iterator<Card> iterator = claimedTricks.iterator();
+        while (iterator.hasNext()) {
+            Card claimedCard = iterator.next();
+            if (claimedCard.getColor().equals(color)) {
+                iterator.remove();
+                break;
+            }
+        }
+        claimedTricks.add(newCard);
     }
 
     public boolean isPlayerDead() {
-        return claimedTricks.getOrDefault(CardType.GREEN, 0) > 0 && claimedTricks.getOrDefault(CardType.RED, 0) > 0
-                && claimedTricks.getOrDefault(CardType.PURPLE, 0) > 0 && claimedTricks.getOrDefault(CardType.BLUE, 0) > 0
-                && claimedTricks.getOrDefault(CardType.YELLOW, 0) > 0;
+        return claimedTricks.stream().anyMatch(card -> card.getColor().equals(CardType.GREEN.getColor())) &&
+                claimedTricks.stream().anyMatch(card -> card.getColor().equals(CardType.RED.getColor())) &&
+                claimedTricks.stream().anyMatch(card -> card.getColor().equals(CardType.PURPLE.getColor())) &&
+                claimedTricks.stream().anyMatch(card -> card.getColor().equals(CardType.BLUE.getColor())) &&
+                claimedTricks.stream().anyMatch(card -> card.getColor().equals(CardType.YELLOW.getColor()));
     }
 
-    public CardType getHighestValueClaimedTrickType() {
-        CardType maxCardType = null;
-        int maxValue = Integer.MIN_VALUE;
-
-        for (Map.Entry<CardType, Integer> entry : claimedTricks.entrySet()) {
-            if (entry.getValue() > maxValue) {
-                maxValue = entry.getValue();
-                maxCardType = entry.getKey();
+    public Card getHighestValueClaimedTrickCard() {
+        Map<String, Card> maxValueCards = new HashMap<>();
+        for (Card card : claimedTricks) {
+            String color = card.getColor();
+            if (!maxValueCards.containsKey(color) || card.getValue() > maxValueCards.get(color).getValue()) {
+                maxValueCards.put(color, card);
             }
         }
 
-        return maxCardType;
+        return maxValueCards.values().stream()
+                .max(Comparator.comparingInt(Card::getValue))
+                .orElse(null);
     }
 }
