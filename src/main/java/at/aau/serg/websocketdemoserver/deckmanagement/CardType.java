@@ -43,5 +43,4 @@ public enum CardType {
         }
         throw new IllegalArgumentException("No enum constant with color " + color);
     }
-
 }
