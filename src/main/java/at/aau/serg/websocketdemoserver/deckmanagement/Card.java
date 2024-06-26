@@ -16,6 +16,13 @@ public class Card {
     public Card() {
     }
 
+    public Card(CardType cardType, String color, Integer value) {
+        this.cardType = cardType;
+        this.color = color;
+        this.value = value;
+        this.createImagePath();
+    }
+
     public Card(CardType cardType, Integer value){
         this.cardType = cardType;
         this.color = cardType.getColor();
@@ -28,6 +35,13 @@ public class Card {
         this.color = card.color;
         this.value = card.value;
         this.imgPath = card.imgPath;
+        this.createImagePath();
+    }
+
+    public Card(String color, Integer value) {
+        this.cardType = CardType.getByColor(color);
+        this.color = color;
+        this.value = value;
         this.createImagePath();
     }
 

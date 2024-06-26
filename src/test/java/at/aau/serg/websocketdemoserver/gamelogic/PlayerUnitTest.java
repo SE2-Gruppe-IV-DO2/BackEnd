@@ -2,16 +2,15 @@ package at.aau.serg.websocketdemoserver.gamelogic;
 
 import at.aau.serg.websocketdemoserver.deckmanagement.Card;
 import at.aau.serg.websocketdemoserver.deckmanagement.CardType;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static at.aau.serg.websocketdemoserver.deckmanagement.CardType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class PlayerUnitTest {
+
     @Test
     void testConstructorAndGetters() {
         String playerID = "123";
@@ -36,8 +35,8 @@ class PlayerUnitTest {
     @Test
     void testPlayCardCardForPlayerFound() {
         Player player = new Player("123", "John");
-        Card card1 = new Card(RED, 5);
-        Card card2 = new Card(BLUE, 3);
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 3);
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
@@ -47,23 +46,23 @@ class PlayerUnitTest {
         assertEquals(1, player.getCardsInHand().size());
     }
 
-    @Test()
+    @Test
     void testPlayCardCardForPlayerNotFound() {
         Player player = new Player("123", "John");
-        Card card1 = new Card(RED, 2);
-        Card card2 = new Card(BLUE, 3);
+        Card card1 = new Card(CardType.RED, 2);
+        Card card2 = new Card(CardType.BLUE, 3);
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", "green", 5));
+        assertThrows(IllegalArgumentException.class, () -> player.playCardForPlayer("green", "green", 5));
     }
 
-    @Test()
+    @Test
     void testPlayerHasGaia() {
         Player player = new Player("123", "John");
-        Card gaiaCard = new Card(GAIA, 0);
-        Card card2 = new Card(BLUE, 3);
-        Card card3 = new Card(GREEN, 3);
+        Card gaiaCard = new Card(CardType.GAIA, 0);
+        Card card2 = new Card(CardType.BLUE, 3);
+        Card card3 = new Card(CardType.GREEN, 3);
 
         player.getCardsInHand().add(card2);
         player.getCardsInHand().add(gaiaCard);
@@ -72,11 +71,11 @@ class PlayerUnitTest {
         assertTrue(player.hasGaiaCard());
     }
 
-    @Test()
+    @Test
     void testPlayerHasNoGaia() {
         Player player = new Player("123", "John");
-        Card card2 = new Card(BLUE, 3);
-        Card card3 = new Card(GREEN, 3);
+        Card card2 = new Card(CardType.BLUE, 3);
+        Card card3 = new Card(CardType.GREEN, 3);
 
         player.getCardsInHand().add(card2);
         player.getCardsInHand().add(card3);
@@ -87,8 +86,8 @@ class PlayerUnitTest {
     @Test
     void testPlayGaiaForPlayerFound() {
         Player player = new Player("123", "John");
-        Card card1 = new Card(RED, 5);
-        Card card2 = new Card(GAIA, 0);
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.GAIA, 0);
         player.getCardsInHand().add(card1);
         player.getCardsInHand().add(card2);
 
@@ -108,8 +107,9 @@ class PlayerUnitTest {
         boolean isDead = player.addClaimedTrick(trickCards);
 
         assertFalse(isDead);
-        assertEquals(5, player.getClaimedTricks().get(CardType.RED));
-        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+        assertEquals(2, player.getClaimedTricks().size());
+        assertTrue(player.getClaimedTricks().contains(card1));
+        assertTrue(player.getClaimedTricks().contains(card2));
     }
 
     @Test
@@ -119,7 +119,6 @@ class PlayerUnitTest {
         Card card2 = new Card(CardType.RED, 7);
         Card card3 = new Card(CardType.RED, 3);
         Card card4 = new Card(CardType.RED, 4);
-
         Card card5 = new Card(CardType.BLUE, 2);
         Card card6 = new Card(CardType.BLUE, 4);
 
@@ -128,51 +127,35 @@ class PlayerUnitTest {
         boolean isDead = player.addClaimedTrick(trickCards);
 
         assertFalse(isDead);
-        assertEquals(3, player.getClaimedTricks().get(CardType.RED));
-        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
-    }
-
-    @Test
-    void testUpdateClaimedTrickForCardType() {
-        Player player = new Player("123", "John");
-        player.updateClaimedTrickForCardType(CardType.RED, 5);
-
-        assertEquals(5, player.getClaimedTricks().get(CardType.RED));
+        assertEquals(2, player.getClaimedTricks().size());
+        assertTrue(player.getClaimedTricks().contains(card3));
+        assertTrue(player.getClaimedTricks().contains(card5));
     }
 
     @Test
     void testIsPlayerDead() {
         Player player = new Player("123", "John");
-        player.updateClaimedTrickForCardType(CardType.GREEN, 1);
-        player.updateClaimedTrickForCardType(CardType.RED, 1);
-        player.updateClaimedTrickForCardType(CardType.PURPLE, 1);
-        player.updateClaimedTrickForCardType(CardType.BLUE, 1);
-        player.updateClaimedTrickForCardType(CardType.YELLOW, 1);
+        player.updateClaimedTrickForColor(CardType.GREEN.getColor(), new Card(CardType.GREEN, 1));
+        player.updateClaimedTrickForColor(CardType.RED.getColor(), new Card(CardType.RED, 1));
+        player.updateClaimedTrickForColor(CardType.PURPLE.getColor(), new Card(CardType.PURPLE, 1));
+        player.updateClaimedTrickForColor(CardType.BLUE.getColor(), new Card(CardType.BLUE, 1));
+        player.updateClaimedTrickForColor(CardType.YELLOW.getColor(), new Card(CardType.YELLOW, 1));
 
         assertTrue(player.isPlayerDead());
     }
 
     @Test
-    void testIfPlayerIsDeadWithSickle() {
+    void testGetHighestValueClaimedTrickCard() {
         Player player = new Player("123", "John");
-        player.updateClaimedTrickForCardType(CardType.GREEN, 1);
-        player.updateClaimedTrickForCardType(CardType.RED, 1);
-        player.updateClaimedTrickForCardType(CardType.PURPLE, 1);
-        player.updateClaimedTrickForCardType(CardType.BLUE, 1);
-        player.updateClaimedTrickForCardType(CardType.YELLOW, 1);
-        player.updateClaimedTrickForCardType(GOLDEN_SICKLE, 0);
+        Card card1 = new Card(CardType.RED, 5);
+        Card card2 = new Card(CardType.BLUE, 3);
+        Card card3 = new Card(CardType.GREEN, 3);
 
-        assertTrue(player.isPlayerDead());
-    }
+        player.updateClaimedTrickForColor(CardType.RED.getColor(), card1);
+        player.updateClaimedTrickForColor(CardType.BLUE.getColor(), card2);
+        player.updateClaimedTrickForColor(CardType.GREEN.getColor(), card3);
 
-    @Test
-    void testGetHighestValueClaimedTrickType() {
-        Player player = new Player("123", "John");
-        player.updateClaimedTrickForCardType(CardType.RED, 5);
-        player.updateClaimedTrickForCardType(CardType.BLUE, 3);
-        player.updateClaimedTrickForCardType(GREEN, 3);
-
-        assertEquals(CardType.RED, player.getHighestValueClaimedTrickType());
+        assertEquals(card1, player.getHighestValueClaimedTrickCard());
     }
 
     @Test
@@ -189,8 +172,9 @@ class PlayerUnitTest {
         boolean isDead = player.addClaimedTrick(trickCards2);
 
         assertFalse(isDead);
-        assertEquals(3, player.getClaimedTricks().get(CardType.RED));
-        assertEquals(6, player.getClaimedTricks().get(CardType.BLUE));
+        assertEquals(2, player.getClaimedTricks().size());
+        assertTrue(player.getClaimedTricks().contains(card3));
+        assertTrue(player.getClaimedTricks().contains(card4));
     }
 
     @Test
@@ -198,13 +182,12 @@ class PlayerUnitTest {
         Player player = new Player("123", "John");
         Card card1 = new Card(CardType.RED, 5);
         Card card2 = new Card(CardType.BLUE, 2);
-        Card sickleCard = new Card(GOLDEN_SICKLE, 0);
+        Card sickleCard = new Card(CardType.GOLDEN_SICKLE, 0);
 
         List<Card> trickCards = List.of(card1, card2, sickleCard);
         player.addClaimedTrick(trickCards);
 
-        assertEquals(0, player.getClaimedTricks().get(CardType.RED));
-        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+        assertEquals(1, player.getClaimedTricks().size());
     }
 
     @Test
@@ -212,18 +195,16 @@ class PlayerUnitTest {
         Player player = new Player("123", "John");
         Card card1 = new Card(CardType.RED, 5);
         Card card2 = new Card(CardType.BLUE, 2);
-        Card card3 = new Card(GREEN, 3);
-        Card card4 = new Card(YELLOW, 4);
-        Card sickleCard = new Card(GOLDEN_SICKLE, 0);
-        Card sickleCard2 = new Card(GOLDEN_SICKLE, 0);
+        Card card3 = new Card(CardType.GREEN, 3);
+        Card card4 = new Card(CardType.YELLOW, 4);
+        Card sickleCard = new Card(CardType.GOLDEN_SICKLE, 0);
+        Card sickleCard2 = new Card(CardType.GOLDEN_SICKLE, 0);
 
         List<Card> trickCards = List.of(card1, card2, card3, card4, sickleCard, sickleCard2);
         player.addClaimedTrick(trickCards);
 
-        assertEquals(0, player.getClaimedTricks().get(CardType.RED));
-        assertEquals(0, player.getClaimedTricks().get(YELLOW));
-        assertEquals(3, player.getClaimedTricks().get(GREEN));
-        assertEquals(2, player.getClaimedTricks().get(CardType.BLUE));
+        assertEquals(2, player.getClaimedTricks().size());
+        assertTrue(player.getClaimedTricks().contains(card3));
     }
 }
 

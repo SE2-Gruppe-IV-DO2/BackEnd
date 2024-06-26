@@ -215,8 +215,8 @@ public class Lobby {
 
     private int getLowestCardValueSum(Player player) {
         int sum = 0;
-        for (Map.Entry<CardType, Integer> entry : player.getClaimedTricks().entrySet()) {
-            sum += entry.getValue();
+        for (Card card : player.getClaimedTricks()) {
+            sum += card.getValue();
         }
         return sum;
     }
@@ -226,8 +226,8 @@ public class Lobby {
         getLastPlayedCardPerPlayer().put(playerId, card);
     }
 
-    public HashMap<String, Map<CardType, Integer>> getPlayerTricks() {
-        HashMap<String, Map<CardType, Integer>> playerTricks = new HashMap<>();
+    public HashMap<String, List<Card>> getPlayerTricks() {
+        HashMap<String, List<Card>> playerTricks = new HashMap<>();
         for (Player player : players) {
             playerTricks.put(player.getPlayerName(), player.getClaimedTricks());
         }

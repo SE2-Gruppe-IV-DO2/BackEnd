@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -353,7 +354,8 @@ public class LobbyUnitTest {
         lobby.addPlayer(new Player("player3", "test3"));
 
         for (Player p : lobby.getPlayers()) {
-            p.getClaimedTricks().put(CardType.GREEN, 1);
+            Card card = new Card(CardType.GREEN, 1);
+            p.getClaimedTricks().add(card);
         }
 
         lobby.createPointBoard();
@@ -428,16 +430,18 @@ public class LobbyUnitTest {
         lobby.addPlayer(new Player("player1", "test1"));
         lobby.addPlayer(new Player("player2", "test2"));
         lobby.addPlayer(new Player("player3", "test3"));
-        HashMap<CardType, Integer> playerTricks = new HashMap<>();
-        playerTricks.put(CardType.GREEN, 1);
-        playerTricks.put(CardType.YELLOW, 1);
+        List<Card> playerTricks = new ArrayList<>();
+        Card c1 = new Card(CardType.GREEN, 1);
+        playerTricks.add(c1);
+        c1 = new Card(CardType.YELLOW, 1);
+        playerTricks.add(c1);
         lobby.getPlayers().forEach(player -> player.setClaimedTricks(playerTricks));
-        HashMap<String, Map<CardType, Integer>> expected = new HashMap<>();
+        HashMap<String, List<Card>> expected = new HashMap<>();
         expected.put("test1", playerTricks);
         expected.put("test2", playerTricks);
         expected.put("test3", playerTricks);
 
-        HashMap<String, Map<CardType, Integer>> actualTricks = lobby.getPlayerTricks();
+        HashMap<String, List<Card>> actualTricks = lobby.getPlayerTricks();
         Assertions.assertEquals(expected, actualTricks);
     }
 
@@ -448,12 +452,17 @@ public class LobbyUnitTest {
         lobby.addPlayer(new Player("player3", "test3"));
         List<Player> players = lobby.getPlayers();
         lobby.deck.dealNewRound(players);
-        HashMap<CardType, Integer> playerTricks = new HashMap<>();
-        playerTricks.put(CardType.GREEN, 1);
-        playerTricks.put(CardType.YELLOW, 1);
-        playerTricks.put(CardType.BLUE, 1);
-        playerTricks.put(CardType.RED, 1);
-        playerTricks.put(CardType.PURPLE, 1);
+        List<Card> playerTricks = new ArrayList<>();
+        Card c1 = new Card(CardType.GREEN, 1);
+        playerTricks.add(c1);
+        c1 = new Card(CardType.YELLOW, 1);
+        playerTricks.add(c1);
+        c1 = new Card(CardType.BLUE, 1);
+        playerTricks.add(c1);
+        c1 = new Card(CardType.RED, 1);
+        playerTricks.add(c1);
+        c1 = new Card(CardType.PURPLE, 1);
+        playerTricks.add(c1);
 
         lobby.getPlayerByID("player1").setClaimedTricks(playerTricks);
 

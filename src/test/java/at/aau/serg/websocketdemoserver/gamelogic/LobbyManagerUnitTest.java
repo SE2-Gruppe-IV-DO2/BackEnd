@@ -213,19 +213,21 @@ public class LobbyManagerUnitTest {
         }
         Player player = new Player("123", "John");
         lobbyManager.addPlayerToLobby(lobbyCode, player);
-        Card card = new Card(CardType.BLUE, 3);
+        Card card = new Card(CardType.BLUE, "blue", 3);
         player.getCardsInHand().add(card);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
+        cardPlayRequest.setCardType(CardType.BLUE);
 
         Card returnCard = lobbyManager.cardPlayed(cardPlayRequest);
 
         assertEquals(0, player.getCardsInHand().size());
         try {
-            assertTrue(lobbyManager.getLobbyByCode(lobbyCode).getCurrentTrick().contains(card));
+            Assertions.assertEquals(card.getColor(), lobbyManager.getLobbyByID(lobbyCode).getCurrentTrick().get(0).getColor());
+            Assertions.assertEquals(card.getValue(), lobbyManager.getLobbyByID(lobbyCode).getCurrentTrick().get(0).getValue());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -237,7 +239,7 @@ public class LobbyManagerUnitTest {
     @Test
     void testCardPlayedFailureLobby() {
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode("123");
         cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
@@ -254,7 +256,7 @@ public class LobbyManagerUnitTest {
             throw new RuntimeException(e);
         }
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID("123");
         cardPlayRequest.setColor("blue");
@@ -274,10 +276,11 @@ public class LobbyManagerUnitTest {
         Player player = new Player("123", "John");
         lobbyManager.addPlayerToLobby(lobbyCode, player);
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player.getPlayerID());
         cardPlayRequest.setColor("blue");
+        cardPlayRequest.setCardType(CardType.BLUE);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> lobbyManager.cardPlayed(cardPlayRequest));
     }
@@ -406,26 +409,29 @@ public class LobbyManagerUnitTest {
 
         // Player 2 plays first card => card force to green
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setValue(5);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player2.getPlayerID());
         cardPlayRequest.setColor("green");
+        cardPlayRequest.setCardType(CardType.GREEN);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 3 plays correct card (has no green)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setValue(2);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player3.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 1 cheats
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setValue(8);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player1.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         assertTrue(player1.cheatedInCurrentRound);
@@ -477,26 +483,29 @@ public class LobbyManagerUnitTest {
 
         // Player 2 plays first card => card force to green
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setValue(5);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player2.getPlayerID());
         cardPlayRequest.setColor("green");
+        cardPlayRequest.setCardType(CardType.GREEN);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 3 plays correct card (has no green)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setValue(2);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player3.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 1 cheats
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setValue(8);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player1.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         assertTrue(player1.cheatedInCurrentRound);
@@ -505,26 +514,29 @@ public class LobbyManagerUnitTest {
 
         // Player 1 plays last card (can not cheat with last card)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setValue(2);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player1.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 2 plays last card (can not cheat with last card)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player2.getPlayerID());
         cardPlayRequest.setColor("green");
+        cardPlayRequest.setCardType(CardType.GREEN);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 3 plays last card (can not cheat with last card)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(3));
+        cardPlayRequest.setValue(3);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player3.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // überprüfen ob schummeln nach richtiger Karte noch immer korrekt ist
@@ -567,26 +579,29 @@ public class LobbyManagerUnitTest {
 
         // Player 2 plays first card => card force to green
         CardPlayRequest cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(5));
+        cardPlayRequest.setValue(5);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player2.getPlayerID());
         cardPlayRequest.setColor("green");
+        cardPlayRequest.setCardType(CardType.GREEN);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 3 plays correct card (has no green)
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(2));
+        cardPlayRequest.setValue(2);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player3.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         // Player 1 cheats
         cardPlayRequest = new CardPlayRequest();
-        cardPlayRequest.setValue(String.valueOf(8));
+        cardPlayRequest.setValue(8);
         cardPlayRequest.setLobbyCode(lobbyCode);
         cardPlayRequest.setUserID(player1.getPlayerID());
         cardPlayRequest.setColor("red");
+        cardPlayRequest.setCardType(CardType.RED);
         lobbyManager.cardPlayed(cardPlayRequest);
 
         assertTrue(player1.cheatedInCurrentRound);
